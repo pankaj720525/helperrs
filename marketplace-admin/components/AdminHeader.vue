@@ -1,21 +1,31 @@
 <template>
   <header class="h-16 glass border-b border-white/5 flex items-center justify-between px-6 sticky top-0 z-20">
-    <!-- Left: Mobile menu + breadcrumb -->
+    <!-- Left: breadcrumb -->
     <div class="flex items-center gap-4">
-      <button
-        @click="uiStore.toggleMobileSidebar()"
-        class="lg:hidden text-slate-400 hover:text-white transition-colors"
-      >
-        ☰
-      </button>
-      <div>
-        <h1 class="text-lg font-heading font-semibold text-white">{{ pageTitle }}</h1>
-      </div>
+      <button @click="uiStore.toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white transition-colors">☰</button>
+      <h1 class="text-lg font-heading font-semibold text-white">{{ pageTitle }}</h1>
     </div>
 
-    <!-- Right: Admin info + actions -->
+    <!-- Right: Theme toggle + Admin info + Logout -->
     <div class="flex items-center gap-4">
-      <!-- Admin avatar and name -->
+
+      <!-- ─── Dark / Light Toggle ──────────────────────── -->
+      <button
+        @click="toggleTheme"
+        :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        class="relative w-14 h-7 rounded-full transition-all duration-300 focus:outline-none"
+        :class="isDark ? 'bg-white/10 border border-white/10' : 'bg-amber-100 border border-amber-200'"
+      >
+        <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none">🌙</span>
+        <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none">☀️</span>
+        <span
+          class="absolute top-0.5 w-6 h-6 rounded-full shadow-md transition-all duration-300"
+          :class="isDark ? 'left-0.5 bg-slate-700' : 'left-7 bg-white'"
+        />
+      </button>
+      <!-- ────────────────────────────────────────────────── -->
+
+      <!-- Admin info -->
       <div class="flex items-center gap-3">
         <div class="text-right hidden sm:block">
           <p class="text-sm font-medium text-slate-200">{{ authStore.admin?.name }}</p>
@@ -43,6 +53,9 @@ const uiStore = useUiStore();
 const route = useRoute();
 const api = useApi();
 const toast = useToast();
+const { isDark, toggleTheme, initTheme } = useAdminTheme();
+
+onMounted(() => initTheme());
 
 const pageTitle = computed(() => {
   const path = route.path;
@@ -57,9 +70,7 @@ const initials = computed(() => {
 });
 
 const handleLogout = async () => {
-  try {
-    await api.post("/admin/logout");
-  } catch {}
+  try { await api.post("/admin/logout"); } catch {}
   authStore.logout();
   navigateTo("/login");
   toast.success("Logged out successfully.");

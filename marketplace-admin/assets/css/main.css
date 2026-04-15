@@ -159,3 +159,56 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-surface-border);
 }
+
+/* ─── Theme Transitions ──────────────────────────────── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* ─── Admin Light Mode ───────────────────────────────── */
+html.admin-light body {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+html.admin-light .glass {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+html.admin-light .text-white { color: #0F172A !important; }
+html.admin-light .text-slate-200 { color: #1E293B !important; }
+html.admin-light .text-slate-300 { color: #334155 !important; }
+html.admin-light .text-slate-400 { color: #475569 !important; }
+html.admin-light .text-slate-500 { color: #64748B !important; }
+
+html.admin-light .border-white\/5,
+html.admin-light .border-white\/10 {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+html.admin-light .bg-white\/3,
+html.admin-light .bg-white\/5,
+html.admin-light .bg-white\/10 {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+
+html.admin-light input,
+html.admin-light textarea,
+html.admin-light select {
+  background-color: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #0F172A !important;
+}
+
+html.admin-light input::placeholder,
+html.admin-light textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.admin-light table thead tr {
+  background-color: rgba(0,0,0,0.03);
+}
+

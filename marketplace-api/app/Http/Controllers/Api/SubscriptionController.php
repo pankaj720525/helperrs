@@ -28,4 +28,39 @@ class SubscriptionController extends Controller
             'subscription' => $subscription ? new SubscriptionResource($subscription) : null,
         ]);
     }
+
+    /**
+     * Subscribe to a plan (monthly or yearly).
+     */
+    public function subscribe(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'plan_type' => ['required', 'in:monthly,yearly'],
+        ]);
+
+        $user = $request->user();
+
+        // Prevent subscribing if already has active non-trial subscription
+        if ($this->subscriptionService->hasActiveSubscription($user)) {
+            $current = $this->subscriptionService->getActive($user);
+            if ($current && $current->plan_type !== 'trial') {
+                return response()->json([
+                    'message' => 'You already have an active subscription.',
+                ], 422);
+            }
+        }
+
+        $days = $validated['plan_type'] === 'yearly' ? 365 : 30;
+
+        $subscription = $user->subscriptions()->create([
+            'plan_type'  => $validated['plan_type'],
+            'starts_at'  => now(),
+            'expires_at' => now()->addDays($days),
+        ]);
+
+        return response()->json([
+            'message'      => 'Subscription activated successfully.',
+            'subscription' => new SubscriptionResource($subscription),
+        ], 201);
+    }
 }

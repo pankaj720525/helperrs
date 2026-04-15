@@ -35,8 +35,8 @@
             <td class="px-5 py-4"><UiStatusBadge :status="r.is_moderated ? 'approved' : 'pending'" :label="r.is_moderated ? 'Moderated' : 'Pending'" /></td>
             <td class="px-5 py-4 text-right">
               <div class="flex items-center justify-end gap-2">
-                <button v-if="!r.is_moderated" @click="moderate(r)" class="px-3 py-1.5 rounded-lg bg-success/15 text-success text-xs font-medium hover:bg-success/25 transition-colors">Approve</button>
-                <button @click="deleteReview(r)" class="px-3 py-1.5 rounded-lg bg-danger/15 text-danger text-xs font-medium hover:bg-danger/25 transition-colors">Delete</button>
+                <button v-if="!r.is_moderated" @click="confirmModerate(r)" class="px-3 py-1.5 rounded-lg bg-success/15 text-success text-xs font-medium hover:bg-success/25 transition-colors">Approve</button>
+                <button @click="confirmDelete(r)" class="px-3 py-1.5 rounded-lg bg-danger/15 text-danger text-xs font-medium hover:bg-danger/25 transition-colors">Delete</button>
               </div>
             </td>
           </tr>
@@ -44,6 +44,16 @@
       </table>
       <div v-if="!reviews.length" class="p-10 text-center text-slate-500">No reviews found.</div>
     </div>
+
+    <!-- Moderate Confirm -->
+    <UiModal v-model="moderateModal" title="Approve Review" confirm-label="Approve" @confirm="moderate">
+      <p class="text-sm text-slate-300">Approve the review from <strong class="text-white">{{ selectedReview?.user?.name }}</strong>?</p>
+    </UiModal>
+
+    <!-- Delete Confirm -->
+    <UiModal v-model="deleteModal" title="Delete Review" confirm-label="Delete" :confirm-danger="true" @confirm="deleteReview">
+      <p class="text-sm text-slate-300">Permanently delete this review from <strong class="text-white">{{ selectedReview?.user?.name }}</strong>? This cannot be undone.</p>
+    </UiModal>
   </div>
 </template>
 
@@ -55,6 +65,9 @@ const toast = useToast();
 const reviews = ref<any[]>([]);
 const search = ref("");
 const moderatedFilter = ref("");
+const selectedReview = ref<any>(null);
+const moderateModal = ref(false);
+const deleteModal = ref(false);
 
 const loadReviews = async () => {
   try {
@@ -66,18 +79,22 @@ const loadReviews = async () => {
   } catch { toast.error("Failed to load reviews."); }
 };
 
-const moderate = async (r: any) => {
+const confirmModerate = (r: any) => { selectedReview.value = r; moderateModal.value = true; };
+const confirmDelete = (r: any) => { selectedReview.value = r; deleteModal.value = true; };
+
+const moderate = async () => {
+  if (!selectedReview.value) return;
   try {
-    await api.put(`/admin/reviews/${r.id}/moderate`);
-    toast.success("Review moderated.");
+    await api.put(`/admin/reviews/${selectedReview.value.id}/moderate`);
+    toast.success("Review approved.");
     loadReviews();
   } catch { toast.error("Failed."); }
 };
 
-const deleteReview = async (r: any) => {
-  if (!confirm("Delete this review?")) return;
+const deleteReview = async () => {
+  if (!selectedReview.value) return;
   try {
-    await api.delete(`/admin/reviews/${r.id}`);
+    await api.delete(`/admin/reviews/${selectedReview.value.id}`);
     toast.success("Review deleted.");
     loadReviews();
   } catch { toast.error("Failed."); }

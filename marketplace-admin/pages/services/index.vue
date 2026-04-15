@@ -61,7 +61,7 @@
                 <div class="flex items-center justify-end gap-2">
                   <button
                     v-if="service.status === 'pending'"
-                    @click="approveService(service)"
+                    @click="confirmApprove(service)"
                     class="px-3 py-1.5 rounded-lg bg-success/15 text-success text-xs font-medium hover:bg-success/25 transition-colors"
                   >
                     Approve
@@ -112,7 +112,19 @@
       </div>
     </div>
 
-    <!-- Reject Modal -->
+  <!-- Approve Confirm Modal -->
+    <UiModal
+      v-model="approveModalOpen"
+      title="Approve Service"
+      confirm-label="Approve"
+      @confirm="approveService"
+    >
+      <p class="text-sm text-slate-300">
+        Are you sure you want to approve
+        <strong class="text-white">"{{ pendingApproveService?.title }}"</strong>?
+        It will be publicly visible on the marketplace.
+      </p>
+    </UiModal>
     <UiModal
       v-model="rejectModalOpen"
       title="Reject Service"
@@ -164,7 +176,17 @@ const loadServices = async () => {
   }
 };
 
-const approveService = async (service: any) => {
+const approveModalOpen = ref(false);
+const pendingApproveService = ref<any>(null);
+
+const confirmApprove = (service: any) => {
+  pendingApproveService.value = service;
+  approveModalOpen.value = true;
+};
+
+const approveService = async () => {
+  const service = pendingApproveService.value;
+  if (!service) return;
   try {
     await api.put(`/admin/services/${service.id}/approve`);
     toast.success(`"${service.title}" approved successfully.`);

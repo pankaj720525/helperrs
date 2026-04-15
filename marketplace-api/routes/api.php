@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureActiveUser::class,
 
     // Subscription
     Route::get('/subscription', [SubscriptionController::class, 'show']);
+    Route::post('/subscription', [SubscriptionController::class, 'subscribe']);
 });
 
 /*

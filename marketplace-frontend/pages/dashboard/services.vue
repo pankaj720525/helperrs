@@ -2,9 +2,27 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-heading font-bold text-white">🔧 My Services</h1>
-      <button @click="openCreateModal" class="px-5 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all">
+      <button
+        @click="handleAddClick"
+        class="px-5 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all"
+      >
         + Add Service
       </button>
+    </div>
+
+    <!-- Trial Limit Banner -->
+    <div v-if="showTrialBanner" class="glass rounded-2xl p-5 border border-warning/20 flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-2">
+      <div class="text-3xl">🔒</div>
+      <div class="flex-1">
+        <p class="font-semibold text-white mb-0.5">Free Trial Limit Reached</p>
+        <p class="text-sm text-slate-400">You've used <strong class="text-warning">{{ services.length }}/2</strong> free trial services. Upgrade your plan to add unlimited services.</p>
+      </div>
+      <NuxtLink
+        to="/dashboard/subscription"
+        class="flex-shrink-0 px-5 py-2.5 rounded-xl gradient-primary text-white text-sm font-semibold hover:shadow-glow transition-all whitespace-nowrap"
+      >
+        ⬆️ Upgrade Plan
+      </NuxtLink>
     </div>
 
     <!-- Status Tabs -->
@@ -117,6 +135,9 @@
 <script setup lang="ts">
 const api = useApi();
 const userStore = useUserStore();
+const router = useRouter();
+
+const FREE_TRIAL_LIMIT = 2;
 
 const services = ref<any[]>([]);
 const categories = ref<any[]>([]);
@@ -126,6 +147,16 @@ const editingId = ref<string | null>(null);
 const saving = ref(false);
 const errorMsg = ref("");
 const form = reactive({ category_id: "", title: "", description: "", price_min: 0, price_max: 0 });
+
+// Trial limit: only applies when on trial plan and not editing
+const isTrial = computed(() => userStore.user?.subscription?.plan_type === 'trial' || !userStore.user?.subscription);
+const atTrialLimit = computed(() => isTrial.value && services.value.length >= FREE_TRIAL_LIMIT);
+const showTrialBanner = computed(() => atTrialLimit.value);
+
+const handleAddClick = () => {
+  if (atTrialLimit.value) return; // Banner is shown instead
+  openCreateModal();
+};
 
 onMounted(async () => {
   userStore.loadFromStorage();
