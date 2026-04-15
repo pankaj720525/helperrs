@@ -32,13 +32,17 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Public Catalog
+// Public Catalog (no auth, but hashid decryption applied to routes with {id})
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/services', [ServiceController::class, 'index']);
-Route::get('/services/{id}', [ServiceController::class, 'show']);
 Route::get('/search', [SearchController::class, 'search']);
 Route::get('/reviews', [ReviewController::class, 'index']);
+
+// Public detail routes — need hashid decryption
+Route::middleware([\App\Http\Middleware\DecryptHashIds::class])->group(function () {
+    Route::get('/categories/{id}', [CategoryController::class, 'show']);
+    Route::get('/services/{id}', [ServiceController::class, 'show']);
+});
 
 /*
 |--------------------------------------------------------------------------
