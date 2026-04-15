@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* ─── Custom Design Tokens ──────────────────────────────── */
+@theme {
+  --color-primary: #B20537;
+  --color-primary-light: #D4064A;
+  --color-primary-dark: #8A042B;
+  --color-primary-50: #FEF2F5;
+  --color-primary-100: #FDE6EB;
+  --color-primary-200: #FBC0D0;
+  --color-primary-300: #F88AA8;
+  --color-primary-400: #F24D7A;
+  --color-primary-500: #D4064A;
+  --color-primary-600: #B20537;
+  --color-primary-700: #8A042B;
+  --color-primary-800: #6B031F;
+  --color-primary-900: #4D0216;
+
+  --color-surface: #0F172A;
+  --color-surface-light: #1E293B;
+  --color-surface-lighter: #334155;
+  --color-surface-border: #475569;
+
+  --color-accent: #F59E0B;
+  --color-success: #10B981;
+  --color-danger: #EF4444;
+  --color-info: #3B82F6;
+  --color-warning: #F59E0B;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(178, 5, 55, 0.3);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Custom Utilities ──────────────────────────────────── */
+@utility glass {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility glass-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@utility gradient-primary {
+  background: linear-gradient(135deg, #B20537, #D4064A, #F43F5E);
+}
+
+@utility gradient-hero {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+}
+
+@utility gradient-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, #B20537, #F43F5E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@utility animate-fade-up {
+  animation: fadeUp 0.5s ease-out forwards;
+}
+
+@utility animate-slide-in {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+@utility animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-lighter) transparent;
+}
+
+/* ─── Keyframes ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* ─── Base Styles ───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: #E2E8F0;
+  line-height: 1.6;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-surface-lighter); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-border); }

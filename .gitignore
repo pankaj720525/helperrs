@@ -1,0 +1,34 @@
+# ─── Laravel API ─────────────────────────────────────────
+marketplace-api/vendor/
+marketplace-api/.env
+marketplace-api/.env.backup
+marketplace-api/storage/logs/*.log
+marketplace-api/storage/framework/cache/*
+marketplace-api/storage/framework/sessions/*
+marketplace-api/storage/framework/views/*
+marketplace-api/storage/app/public/*
+marketplace-api/bootstrap/cache/*.php
+marketplace-api/.phpunit.cache/
+
+# ─── Nuxt Admin Panel ────────────────────────────────────
+marketplace-admin/node_modules/
+marketplace-admin/.nuxt/
+marketplace-admin/.output/
+marketplace-admin/.env
+marketplace-admin/dist/
+
+# ─── Nuxt Public Frontend ────────────────────────────────
+marketplace-frontend/node_modules/
+marketplace-frontend/.nuxt/
+marketplace-frontend/.output/
+marketplace-frontend/.env
+marketplace-frontend/dist/
+
+# ─── OS / Editor ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/settings.json
+.idea/
+*.log

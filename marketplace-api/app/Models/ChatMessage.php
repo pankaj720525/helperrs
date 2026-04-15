@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\HasHashId;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class ChatMessage extends Model
+{
+    use HasHashId;
+
+    protected $fillable = [
+        'chat_id',
+        'sender_id',
+        'message',
+        'is_read',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_read' => 'boolean',
+        ];
+    }
+
+    // ─── Relationships ────────────────────────────────────────
+
+    public function chat(): BelongsTo
+    {
+        return $this->belongsTo(Chat::class);
+    }
+
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+}
