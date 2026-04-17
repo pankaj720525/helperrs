@@ -1,11 +1,11 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-    <h1 class="text-3xl font-heading font-bold text-white mb-6">Browse Services</h1>
+    <h1 class="text-3xl font-heading font-bold text-white mb-6">{{ t('browseCategory') }}</h1>
 
     <!-- Filters -->
     <div class="glass rounded-2xl p-5 mb-8 flex flex-wrap items-center gap-4">
       <select v-model="selectedCategory" @change="loadServices" class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm">
-        <option value="">All Categories</option>
+        <option value="">{{ t('allCategories') }}</option>
         <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
       </select>
     </div>
@@ -41,7 +41,7 @@
             <div v-if="service.price_min || service.price_max" class="text-sm font-semibold text-primary-light">
               ₹{{ service.price_min || 0 }} – ₹{{ service.price_max || 0 }}
             </div>
-            <div v-else class="text-sm text-slate-500">Price on request</div>
+            <div v-else class="text-sm text-slate-500">{{ t('priceOnRequest') }}</div>
 
             <!-- Rating -->
             <div class="flex items-center gap-1">
@@ -60,7 +60,7 @@
               <span class="text-xs text-slate-400">{{ service.user?.name }}</span>
             </div>
             <NuxtLink :to="`/services/${service.id}`" class="text-xs text-primary-light hover:underline font-medium">
-              View Details →
+              {{ t('viewDetails') }} →
             </NuxtLink>
           </div>
         </div>
@@ -69,14 +69,14 @@
 
     <div v-if="!services.length" class="glass rounded-2xl p-16 text-center text-slate-500">
       <p class="text-4xl mb-4">🔍</p>
-      <p>No services found. Check back soon!</p>
+      <p>{{ t('noServicesFound') }}</p>
     </div>
 
     <!-- Pagination -->
     <div v-if="meta.last_page > 1" class="flex justify-center gap-3 mt-10">
-      <button @click="page--; loadServices()" :disabled="page <= 1" class="px-4 py-2 rounded-xl glass text-sm text-slate-300 disabled:opacity-30 hover:border-primary/20 transition-all">← Previous</button>
+      <button @click="page--; loadServices()" :disabled="page <= 1" class="px-4 py-2 rounded-xl glass text-sm text-slate-300 disabled:opacity-30 hover:border-primary/20 transition-all">← {{ t('previous') }}</button>
       <span class="px-4 py-2 text-sm text-slate-400">{{ meta.current_page }} / {{ meta.last_page }}</span>
-      <button @click="page++; loadServices()" :disabled="page >= meta.last_page" class="px-4 py-2 rounded-xl glass text-sm text-slate-300 disabled:opacity-30 hover:border-primary/20 transition-all">Next →</button>
+      <button @click="page++; loadServices()" :disabled="page >= meta.last_page" class="px-4 py-2 rounded-xl glass text-sm text-slate-300 disabled:opacity-30 hover:border-primary/20 transition-all">{{ t('next') }} →</button>
     </div>
   </div>
 </template>
@@ -84,31 +84,33 @@
 <script setup lang="ts">
 const api = useApi();
 const route = useRoute();
+const { t, initLang } = useLanguage();
 
-const services = ref<any[]>([]);
-const categories = ref<any[]>([]);
-const meta = ref<any>({});
-const page = ref(1);
-const selectedCategory = ref("");
+const services         = ref<any[]>([]);
+const categories       = ref<any[]>([]);
+const meta             = ref<any>({});
+const page             = ref(1);
+const selectedCategory = ref('');
 
 const loadServices = async () => {
   try {
     const params: any = { page: page.value, per_page: 12 };
     if (selectedCategory.value) params.category_id = selectedCategory.value;
-    const data = await api.get<any>("/services", params);
+    const data = await api.get<any>('/services', params);
     services.value = data.services || [];
-    meta.value = data.meta || {};
+    meta.value     = data.meta || {};
   } catch { }
 };
 
 const loadCategories = async () => {
   try {
-    const data = await api.get<any>("/categories");
+    const data = await api.get<any>('/categories');
     categories.value = data.categories || [];
   } catch { }
 };
 
 onMounted(async () => {
+  initLang();
   await loadCategories();
   if (route.query.category) {
     const cat = categories.value.find((c: any) => c.slug === route.query.category);
