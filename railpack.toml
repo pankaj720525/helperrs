@@ -1,4 +1,5 @@
 [build]
+dir = "marketplace-frontend"
 cmd = "npm run build"
 
 [start]
