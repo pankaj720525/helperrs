@@ -162,45 +162,117 @@ body {
 
 /* ─── Theme Transitions ──────────────────────────────── */
 *, *::before, *::after {
-  transition-property: background-color, border-color, color;
+  transition-property: background-color, border-color, color, box-shadow;
   transition-duration: 200ms;
   transition-timing-function: ease;
 }
 
-/* ─── Admin Light Mode ───────────────────────────────── */
+/* ========================================================
+   ADMIN LIGHT MODE — Complete Override
+   Targets: body, layout wrapper, sidebar, header, glass,
+             cards, text, tables, inputs, borders
+   ======================================================== */
+
+/* ── 1. Body & Root Background ───────────────────────── */
 html.admin-light body {
-  background-color: #F1F5F9;
-  color: #0F172A;
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
 }
 
+/* ── 2. Layout wrapper (gradient-dark) ───────────────── */
+html.admin-light .min-h-screen {
+  background: #F1F5F9 !important;
+}
+
+/* ── 3. Sidebar (gradient-sidebar) ───────────────────── */
+html.admin-light aside {
+  background: #FFFFFF !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Sidebar section divider */
+html.admin-light aside .border-t {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+/* Sidebar System label */
+html.admin-light aside .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+/* Sidebar nav links - inactive */
+html.admin-light aside a.text-slate-400 {
+  color: #64748B !important;
+}
+html.admin-light aside a:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #0F172A !important;
+}
+
+/* Sidebar collapse button */
+html.admin-light aside button {
+  color: #64748B !important;
+}
+html.admin-light aside button:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #0F172A !important;
+}
+
+/* Sidebar logo text */
+html.admin-light aside span.font-heading,
+html.admin-light aside span.text-white {
+  color: #0F172A !important;
+}
+
+/* ── 4. Header (glass) ───────────────────────────────── */
+html.admin-light header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* ── 5. Glass Cards & Containers ─────────────────────── */
 html.admin-light .glass {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+  backdrop-filter: blur(12px) !important;
 }
 
-html.admin-light .text-white { color: #0F172A !important; }
+/* ── 6. Text Colors ──────────────────────────────────── */
+html.admin-light .text-white   { color: #0F172A !important; }
 html.admin-light .text-slate-200 { color: #1E293B !important; }
 html.admin-light .text-slate-300 { color: #334155 !important; }
 html.admin-light .text-slate-400 { color: #475569 !important; }
 html.admin-light .text-slate-500 { color: #64748B !important; }
 
-html.admin-light .border-white\/5,
-html.admin-light .border-white\/10 {
-  border-color: rgba(0,0,0,0.08) !important;
-}
+/* Keep brand/status colors */
+html.admin-light .text-success  { color: #059669 !important; }
+html.admin-light .text-danger   { color: #DC2626 !important; }
+html.admin-light .text-warning  { color: #D97706 !important; }
+html.admin-light .text-info     { color: #2563EB !important; }
+html.admin-light .text-primary-light { color: #B20537 !important; }
 
+/* ── 7. Backgrounds ──────────────────────────────────── */
 html.admin-light .bg-white\/3,
 html.admin-light .bg-white\/5,
 html.admin-light .bg-white\/10 {
-  background-color: rgba(0,0,0,0.04) !important;
+  background-color: rgba(0, 0, 0, 0.035) !important;
 }
 
-html.admin-light input,
+/* ── 8. Borders ──────────────────────────────────────── */
+html.admin-light .border-white\/5,
+html.admin-light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 9. Inputs, Textareas, Selects ──────────────────── */
+html.admin-light input:not([type="checkbox"]):not([type="radio"]),
 html.admin-light textarea,
 html.admin-light select {
-  background-color: rgba(0,0,0,0.04) !important;
-  border-color: rgba(0,0,0,0.1) !important;
+  background-color: #F8FAFC !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
   color: #0F172A !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05) !important;
 }
 
 html.admin-light input::placeholder,
@@ -208,7 +280,27 @@ html.admin-light textarea::placeholder {
   color: #94A3B8 !important;
 }
 
-html.admin-light table thead tr {
-  background-color: rgba(0,0,0,0.03);
+html.admin-light input:focus,
+html.admin-light textarea:focus,
+html.admin-light select:focus {
+  border-color: #B20537 !important;
+  outline: none !important;
 }
 
+/* ── 10. Tables ──────────────────────────────────────── */
+html.admin-light table thead tr {
+  background-color: rgba(0, 0, 0, 0.025) !important;
+}
+
+html.admin-light table tbody tr {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.admin-light table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.025) !important;
+}
+
+/* ── 11. Scrollbar ───────────────────────────────────── */
+html.admin-light ::-webkit-scrollbar-thumb {
+  background: #CBD5E1 !important;
+}
