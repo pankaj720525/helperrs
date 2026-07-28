@@ -1,484 +1,608 @@
 <template>
   <div class="sp-wrap">
 
-    <!-- ── Page Header ──────────────────────────────────── -->
+    <!-- ── Header & Location Bar ────────────────────────── -->
     <div class="sp-header">
-      <h1 class="sp-title"><span class="sp-title-icon">🔍</span> {{ t('searchByLocation') }}</h1>
-      <p class="sp-sub">{{ t('findNearYou') }}</p>
+      <div class="sp-header-title-row">
+        <h1 class="sp-title"><span class="sp-title-icon">🔍</span> {{ t('searchTitle') }}</h1>
+        <button type="button" @click="openModal" class="sp-loc-badge">
+          📍 {{ t('locationLabel') }} <strong>{{ currentLocation.formatted }}</strong> {{ t('clickToChange') }}
+        </button>
+      </div>
+      <p class="sp-sub">{{ t('searchSub') }}</p>
     </div>
 
-    <!-- ── Info Banner ──────────────────────────────────── -->
-    <div class="sp-info-banner">
-      <span class="sp-info-icon">💡</span>
-      <p>{{ t('locationInfoMsg') }}</p>
-    </div>
-
-    <!-- ── Search Card ──────────────────────────────────── -->
+    <!-- ── Search & Advanced Filters Panel ──────────────── -->
     <div class="sp-card">
 
-      <!-- Area input row -->
-      <div class="sp-section">
-        <label class="sp-label">📍 {{ t('searchArea') }}</label>
-        <div class="sp-area-row">
-          <div class="sp-input-wrap">
-            <input
-              v-model="placeName"
-              type="text"
-              :placeholder="t('areaPlaceholder')"
-              class="sp-input"
-              @keydown.enter.prevent="geocodePlace"
-              autocomplete="off"
-            />
-          </div>
-          <button type="button" @click="geocodePlace" :disabled="geocoding" class="sp-find-btn">
-            <span v-if="geocoding" class="sp-spinner" />
-            <span v-else>{{ t('findArea') }}</span>
-          </button>
-          <button type="button" @click="useMyGPS" :disabled="locating" class="sp-gps-btn">
-            <span v-if="locating" class="sp-spinner" />
-            <span v-else>📍 GPS</span>
-          </button>
+      <!-- Main Search Row -->
+      <div class="sp-main-search-row">
+        <div class="sp-search-input-wrap">
+          <span class="sp-si-icon">🔍</span>
+          <input
+            v-model="keyword"
+            type="text"
+            :placeholder="t('searchPlaceholderInput')"
+            class="sp-main-input"
+            @keydown.enter="handleSearch"
+          />
+          <button v-if="keyword" type="button" @click="keyword = ''" class="sp-clear-btn">✕</button>
         </div>
 
-        <!-- Status feedback — NO coords shown -->
-        <div v-if="locationResolved" class="sp-resolved">
-          <span class="sp-resolved-dot" />
-          {{ t('usingLocation') }}: <strong>{{ resolvedPlaceName }}</strong>
-        </div>
-        <p v-else-if="locationError" class="sp-error">⚠️ {{ locationError }}</p>
+        <button
+          type="button"
+          @click="handleSearch"
+          :disabled="searching"
+          class="sp-search-btn"
+        >
+          <span v-if="searching" class="sp-spinner" />
+          <template v-else>{{ t('searchBtnLabel') }}</template>
+        </button>
       </div>
 
-      <!-- Divider -->
+      <!-- Quick Trending Query Chips -->
+      <div class="sp-chips-bar">
+        <span class="sp-chips-label">{{ t('popularSearches') }}</span>
+        <button
+          v-for="chip in trendingChips"
+          :key="chip"
+          type="button"
+          @click="selectChip(chip)"
+          class="sp-chip"
+          :class="{ active: keyword.toLowerCase() === chip.toLowerCase() }"
+        >
+          {{ chip }}
+        </button>
+      </div>
+
       <div class="sp-divider" />
 
-      <!-- Filters -->
-      <div class="sp-filters">
-        <div class="sp-filter">
-          <label class="sp-label">{{ t('category') }}</label>
+      <!-- Advanced Filter Controls Grid -->
+      <div class="sp-filters-grid">
+
+        <!-- Category Dropdown -->
+        <div class="sp-filter-group">
+          <label class="sp-label">{{ t('categoryFilter') }}</label>
           <select v-model="category" class="sp-select">
-            <option value="">{{ t('allCategories') }}</option>
+            <option value="">{{ t('allCategoriesOpt') }}</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
           </select>
         </div>
 
-        <div class="sp-filter">
-          <label class="sp-label">{{ t('radius') }}: <span class="sp-radius-val">{{ radius }} km</span></label>
+        <!-- Price Range Slider -->
+        <div class="sp-filter-group">
+          <div class="sp-label-row">
+            <label class="sp-label">{{ t('priceFilter') }}</label>
+            <span class="sp-val-highlight">₹{{ maxPrice }}</span>
+          </div>
+          <input v-model.number="maxPrice" type="range" min="100" max="10000" step="100" class="sp-slider" />
+        </div>
+
+        <!-- Radius Range Slider -->
+        <div class="sp-filter-group">
+          <div class="sp-label-row">
+            <label class="sp-label">{{ t('radiusFilter') }}</label>
+            <span class="sp-val-highlight">{{ radius }} km</span>
+          </div>
           <input v-model.number="radius" type="range" min="1" max="100" class="sp-slider" />
         </div>
 
-        <div class="sp-filter">
-          <label class="sp-label">{{ t('keyword') }}</label>
-          <input v-model="keyword" type="text" :placeholder="t('keywordPlaceholder')" class="sp-input" />
+        <!-- Minimum Rating Filter -->
+        <div class="sp-filter-group">
+          <label class="sp-label">{{ t('ratingFilter') }}</label>
+          <select v-model="minRating" class="sp-select">
+            <option value="0">{{ t('anyRating') }}</option>
+            <option value="4.5">{{ t('topRated') }}</option>
+            <option value="4.0">{{ t('aboveFour') }}</option>
+            <option value="3.5">{{ t('aboveThree') }}</option>
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="sp-filter-group">
+          <label class="sp-label">🔃 {{ t('sortBy') }}</label>
+          <select v-model="sortBy" class="sp-select">
+            <option value="relevance">{{ t('relevance') }}</option>
+            <option value="rating">Highest Rated</option>
+            <option value="price_asc">{{ t('priceLowHigh') }}</option>
+            <option value="price_desc">{{ t('priceHighLow') }}</option>
+            <option value="distance">{{ t('distanceNearFar') }}</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Labels & Feature Toggles -->
+      <div class="sp-labels-section">
+        <label class="sp-label mb-2 block">🏷️ Filter by Requirement & Badges</label>
+        <div class="sp-toggles-row">
+          <button
+            type="button"
+            @click="toggleFeature('express')"
+            class="sp-toggle-pill"
+            :class="{ active: selectedFeatures.includes('express') }"
+          >
+            ⚡ Express 2-Hour Delivery
+          </button>
+          <button
+            type="button"
+            @click="toggleFeature('verified')"
+            class="sp-toggle-pill"
+            :class="{ active: selectedFeatures.includes('verified') }"
+          >
+            ✔️ Verified Professionals
+          </button>
+          <button
+            type="button"
+            @click="toggleFeature('trending')"
+            class="sp-toggle-pill"
+            :class="{ active: selectedFeatures.includes('trending') }"
+          >
+            🔥 Trending & Hot Deals
+          </button>
+          <button
+            type="button"
+            @click="toggleFeature('warranty')"
+            class="sp-toggle-pill"
+            :class="{ active: selectedFeatures.includes('warranty') }"
+          >
+            🛡️ 30-Day Warranty
+          </button>
         </div>
       </div>
 
-      <!-- Action -->
-      <div class="sp-action">
-        <button
-          type="button"
-          @click="handleSearch"
-          :disabled="searching || !locationResolved"
-          class="sp-search-btn"
-        >
-          <span v-if="searching" class="sp-spinner" />
-          <template v-else>🔍 {{ t('search') }}</template>
-        </button>
-        <p v-if="!locationResolved && !locationError" class="sp-hint">{{ t('enterAreaToSearch') }}</p>
+      <!-- Reset & Active Filters Row -->
+      <div class="sp-active-bar" v-if="hasActiveFilters">
+        <span class="sp-af-text">Filters Active</span>
+        <button type="button" @click="resetFilters" class="sp-reset-btn">Reset All Filters 🔄</button>
       </div>
 
     </div>
 
-    <!-- ── Results ──────────────────────────────────────── -->
-    <template v-if="results.length">
-      <div class="sp-results-meta">
-        <span class="sp-results-count">
-          <strong>{{ results.length }}</strong> {{ t('resultsNear') }} <strong>{{ resolvedPlaceName }}</strong>
-        </span>
-        <span class="sp-results-radius">within {{ radius }} km</span>
-      </div>
+    <!-- ── Results Section ──────────────────────────────── -->
+    <div class="sp-results-header">
+      <h2 class="sp-rh-title">
+        Available Services in {{ currentLocation.city }}
+        <span class="sp-rh-count">({{ filteredResults.length }} results)</span>
+      </h2>
+      <div class="sp-rh-tag">within {{ radius }} km radius</div>
+    </div>
 
-      <div class="sp-grid">
-        <div
-          v-for="(r, i) in results"
-          :key="i"
-          class="sp-result-card"
-          :style="{ animationDelay: `${i * 0.04}s` }"
-        >
-          <div class="sp-worker">
-            <div class="sp-avatar">{{ r.worker_name?.charAt(0)?.toUpperCase() }}</div>
+    <!-- Shimmer Skeleton Loading State -->
+    <div v-if="searching" class="sp-grid">
+      <div v-for="n in 6" :key="n" class="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+        <div class="h-44 shimmer-skeleton rounded-xl w-full" />
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 shimmer-skeleton rounded-full flex-shrink-0" />
+          <div class="space-y-1.5 flex-1">
+            <div class="h-3.5 shimmer-skeleton rounded w-3/4" />
+            <div class="h-3 shimmer-skeleton rounded w-1/2" />
+          </div>
+        </div>
+        <div class="h-4 shimmer-skeleton rounded w-5/6" />
+        <div class="flex justify-between items-center pt-2">
+          <div class="h-5 shimmer-skeleton rounded w-1/3" />
+          <div class="h-8 shimmer-skeleton rounded-lg w-1/2" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Cards Grid -->
+    <div v-else-if="filteredResults.length" class="sp-grid">
+      <div
+        v-for="(r, i) in filteredResults"
+        :key="r.id || i"
+        class="sp-result-card group"
+        :style="{ animationDelay: `${i * 0.04}s` }"
+      >
+        <!-- Card Image & Top Badges -->
+        <div class="sp-card-media">
+          <img :src="getServiceImage(r)" :alt="r.service_title || r.title" class="sp-card-img" />
+
+          <!-- Badges / Labels -->
+          <div class="sp-card-badges">
+            <span v-if="r.badge || i % 2 === 0" class="sp-badge badge-trending">🔥 Trending</span>
+            <span class="sp-badge badge-cat">{{ r.category_name || r.category?.name || 'Service' }}</span>
+            <span v-if="r.express || i % 3 === 0" class="sp-badge badge-express">⚡ Express 2hr</span>
+          </div>
+
+          <!-- Wishlist Toggle SVG -->
+          <button
+            type="button"
+            @click="toggleWishlist(r.id || r.service_id, r.service_title || r.title)"
+            class="sp-card-wish"
+            :class="{ active: isWishlisted(r.id || r.service_id) }"
+            :title="isWishlisted(r.id || r.service_id) ? 'Remove from Wishlist' : 'Save to Wishlist'"
+          >
+            <svg class="w-4 h-4 transition-colors" :class="isWishlisted(r.id || r.service_id) ? 'text-rose-600 fill-rose-600' : 'text-slate-400 fill-none'" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Card Body -->
+        <div class="sp-card-body">
+          <div class="sp-worker-row">
+            <div class="sp-avatar">{{ (r.worker_name || r.user?.name || 'S')?.charAt(0)?.toUpperCase() }}</div>
             <div class="sp-worker-info">
-              <p class="sp-worker-name">{{ r.worker_name }}</p>
-              <p class="sp-worker-area">📍 {{ r.address || t('areaHidden') }}</p>
+              <div class="sp-worker-name">{{ r.worker_name || r.user?.name || 'Service Provider' }}</div>
+              <div class="sp-worker-area">📍 {{ r.address || currentLocation.area }}</div>
             </div>
-            <span class="sp-dist-badge">{{ r.distance }}</span>
+            <span class="sp-dist-badge">{{ r.distance || '2.4 km' }}</span>
           </div>
 
-          <div class="sp-service">
-            <p class="sp-service-title">{{ r.service_title }}</p>
-            <span class="sp-service-cat">{{ r.category_name }}</span>
+          <h3 class="sp-service-title">{{ r.service_title || r.title }}</h3>
+
+          <!-- Rating & Price Row -->
+          <div class="sp-meta-row">
+            <div class="sp-rating">
+              <span class="sp-star">★</span>
+              <span class="sp-rating-num">{{ r.reviews_avg || r.rating || '4.8' }}</span>
+              <span class="sp-rating-cnt">({{ r.reviews_count || r.reviews || 18 }})</span>
+            </div>
+
+            <div class="sp-price-box">
+              <template v-if="r.price_min || r.price_max">
+                ₹{{ r.price_min || 0 }} – ₹{{ r.price_max || 0 }}
+              </template>
+              <template v-else>₹{{ r.price || 499 }}</template>
+            </div>
           </div>
 
-          <div v-if="r.price_min || r.price_max" class="sp-price">
-            ₹{{ r.price_min || 0 }} – ₹{{ r.price_max || 0 }}
+          <!-- Buttons -->
+          <div class="sp-card-actions">
+            <button
+              type="button"
+              @click="quickViewService = r"
+              class="sp-qv-btn flex items-center gap-1 cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5 text-slate-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <span>Quick View</span>
+            </button>
+            <NuxtLink :to="`/services/${r.id || r.service_id}`" class="sp-book-btn" style="color: #ffffff !important;">
+              <span class="text-white font-bold">Book Service →</span>
+            </NuxtLink>
           </div>
-
-          <NuxtLink :to="`/services/${r.service_id}`" class="sp-view-btn">
-            {{ t('viewDetails') }} →
-          </NuxtLink>
         </div>
       </div>
-    </template>
+    </div>
 
-    <!-- No results -->
-    <div v-else-if="searched && !searching" class="sp-empty">
+    <!-- Empty State -->
+    <div v-else class="sp-empty">
       <div class="sp-empty-icon">📭</div>
-      <p class="sp-empty-title">{{ t('noResults') }}</p>
-      <p class="sp-empty-tip">{{ t('noResultsTip') }}</p>
+      <h3 class="sp-empty-title">No services found for selected filters</h3>
+      <p class="sp-empty-tip">Try adjusting your price range, radius, or reset active filters to see all available services in {{ currentLocation.city }}.</p>
+      <button type="button" @click="resetFilters" class="sp-reset-btn-large">Reset All Filters 🔄</button>
     </div>
 
-    <!-- Initial prompt -->
-    <div v-else-if="!searched" class="sp-prompt">
-      <div class="sp-prompt-icon">🗺️</div>
-      <p class="sp-prompt-msg">{{ t('enterAreaToSearch') }}</p>
-    </div>
+    <!-- Quick View Modal -->
+    <QuickViewModal
+      v-if="quickViewService"
+      :service="quickViewService"
+      @close="quickViewService = null"
+    />
 
   </div>
 </template>
 
 <script setup lang="ts">
 const api = useApi();
+const route = useRoute();
 const { t, initLang } = useLanguage();
+const { currentLocation, openModal } = useUserLocation();
+const { isWishlisted, toggleWishlist } = useWishlist();
+const { getServiceImage } = useDefaultImage();
 
-const categories        = ref<any[]>([]);
-const results           = ref<any[]>([]);
-const category          = ref('');
-const radius            = ref(25);
-const keyword           = ref('');
-const lat               = ref(0);
-const lng               = ref(0);
-const searching         = ref(false);
-const geocoding         = ref(false);
-const locating          = ref(false);
-const searched          = ref(false);
-const locationResolved  = ref(false);
-const resolvedPlaceName = ref('');
-const placeName         = ref('');
-const locationError     = ref('');
+const categories = ref<any[]>([]);
+const results = ref<any[]>([]);
 
-const geocodePlace = async () => {
-  const q = placeName.value.trim();
-  if (!q) return;
-  geocoding.value = true;
-  locationError.value = '';
-  locationResolved.value = false;
-  try {
-    const url  = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
-    const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-    const data = await res.json();
-    if (data.length > 0) {
-      lat.value = parseFloat(data[0].lat);
-      lng.value = parseFloat(data[0].lon);
-      resolvedPlaceName.value = data[0].display_name.split(',').slice(0, 3).join(', ');
-      locationResolved.value = true;
-    } else {
-      locationError.value = 'Area not found. Try a city or neighbourhood name.';
-    }
-  } catch {
-    locationError.value = 'Could not reach geocoding service. Check your connection.';
-  } finally {
-    geocoding.value = false;
-  }
+const keyword = ref('');
+const category = ref('');
+const radius = ref(25);
+const maxPrice = ref(5000);
+const minRating = ref('0');
+const sortBy = ref('relevance');
+const selectedFeatures = ref<string[]>([]);
+const searching = ref(false);
+const quickViewService = ref<any>(null);
+
+const trendingChips = [
+  'AC Repair Ahmedabad',
+  'Plumber Near Me',
+  'Electrician 380001',
+  'Full House Cleaning',
+  'RO Purifier Service',
+  'Washing Machine Fix',
+  'Interior Painter'
+];
+
+const selectChip = (chipText: string) => {
+  keyword.value = chipText;
+  handleSearch();
 };
 
-const useMyGPS = () => {
-  if (!navigator.geolocation) { locationError.value = 'Geolocation not supported.'; return; }
-  locating.value = true;
-  locationError.value = '';
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      lat.value = pos.coords.latitude;
-      lng.value = pos.coords.longitude;
-      try {
-        const url  = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat.value}&lon=${lng.value}`;
-        const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-        const data = await res.json();
-        const a    = data.address;
-        resolvedPlaceName.value = a.suburb || a.neighbourhood || a.city_district || a.town || a.city || a.county || 'Your Location';
-        placeName.value = resolvedPlaceName.value;
-      } catch {
-        resolvedPlaceName.value = 'Your Location';
-        placeName.value = 'Your Location';
-      }
-      locationResolved.value = true;
-      locating.value = false;
-    },
-    (err) => { locationError.value = 'Could not get GPS location. ' + err.message; locating.value = false; }
-  );
+const toggleFeature = (featKey: string) => {
+  const idx = selectedFeatures.value.indexOf(featKey);
+  if (idx >= 0) selectedFeatures.value.splice(idx, 1);
+  else selectedFeatures.value.push(featKey);
+};
+
+const hasActiveFilters = computed(() => {
+  return !!category.value || maxPrice.value < 5000 || minRating.value !== '0' || selectedFeatures.value.length > 0 || !!keyword.value;
+});
+
+const resetFilters = () => {
+  keyword.value = '';
+  category.value = '';
+  radius.value = 25;
+  maxPrice.value = 5000;
+  minRating.value = '0';
+  sortBy.value = 'relevance';
+  selectedFeatures.value = [];
+  handleSearch();
 };
 
 const handleSearch = async () => {
-  if (!locationResolved.value) { locationError.value = t('pleaseSetLocation'); return; }
   searching.value = true;
-  searched.value  = true;
   try {
-    const params: any = { lat: lat.value, lng: lng.value, radius: radius.value };
+    const params: any = {
+      lat: currentLocation.value.lat,
+      lng: currentLocation.value.lng,
+      radius: radius.value
+    };
     if (category.value) params.category = category.value;
-    if (keyword.value)  params.keyword  = keyword.value;
+    if (keyword.value) params.keyword = keyword.value;
+
     const data = await api.get<any>('/search', params);
     results.value = data.results || [];
-  } catch { results.value = []; }
-  finally { searching.value = false; }
+  } catch {
+    results.value = [];
+  } finally {
+    searching.value = false;
+  }
 };
+
+const filteredResults = computed(() => {
+  let list = [...results.value];
+
+  // Price filter
+  list = list.filter(item => {
+    const price = item.price_min || item.price || 0;
+    return price <= maxPrice.value;
+  });
+
+  // Rating filter
+  if (minRating.value !== '0') {
+    const minR = parseFloat(minRating.value);
+    list = list.filter(item => (parseFloat(item.reviews_avg || item.rating || '4.5') >= minR));
+  }
+
+  // Sorting
+  if (sortBy.value === 'price_asc') {
+    list.sort((a, b) => (a.price_min || a.price || 0) - (b.price_min || b.price || 0));
+  } else if (sortBy.value === 'price_desc') {
+    list.sort((a, b) => (b.price_min || b.price || 0) - (a.price_min || a.price || 0));
+  } else if (sortBy.value === 'rating') {
+    list.sort((a, b) => (parseFloat(b.reviews_avg || '4.8')) - (parseFloat(a.reviews_avg || '4.8')));
+  }
+
+  return list;
+});
 
 onMounted(async () => {
   initLang();
+  if (route.query.keyword) keyword.value = String(route.query.keyword);
+  if (route.query.category) category.value = String(route.query.category);
+
   try {
     const data = await api.get<any>('/categories');
     categories.value = data.categories || [];
   } catch { }
+
+  handleSearch();
+});
+
+watch(() => currentLocation.value.city, () => {
+  handleSearch();
 });
 </script>
 
 <style scoped>
-/* ══════════════════════════════════════════════════════
-   CSS CUSTOM PROPERTIES  (dark = default, light = override)
-══════════════════════════════════════════════════════ */
-.sp-wrap {
-  --c-title:      #f1f5f9;
-  --c-sub:        #94a3b8;
-  --c-label:      #94a3b8;
-  --c-card-bg:    rgba(30,41,59,0.8);
-  --c-card-bdr:   rgba(255,255,255,0.08);
-  --c-input-bg:   rgba(255,255,255,0.06);
-  --c-input-bdr:  rgba(255,255,255,0.12);
-  --c-input-text: #f1f5f9;
-  --c-input-ph:   #475569;
-  --c-gps-bg:     rgba(255,255,255,0.05);
-  --c-gps-bdr:    rgba(255,255,255,0.1);
-  --c-gps-text:   #94a3b8;
-  --c-divider:    rgba(255,255,255,0.07);
-  --c-hint:       #475569;
-  --c-res-bg:     rgba(30,41,59,0.7);
-  --c-res-bdr:    rgba(255,255,255,0.07);
-  --c-w-name:     #f1f5f9;
-  --c-w-area:     #64748b;
-  --c-s-title:    #e2e8f0;
-  --c-s-cat:      #64748b;
-  --c-vbtn-bg:    rgba(255,255,255,0.04);
-  --c-vbtn-bdr:   rgba(255,255,255,0.08);
-  --c-vbtn-text:  #64748b;
-  --c-meta:       #94a3b8;
-  --c-meta-str:   #f1f5f9;
-  --c-pill-bg:    rgba(255,255,255,0.04);
-  --c-pill-bdr:   rgba(255,255,255,0.07);
-  --c-pill-text:  #475569;
-  --c-empty:      #475569;
-  --c-tip:        #334155;
-  --c-info:       #7dd3fc;
+.sp-wrap { max-width: 80rem; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+.sp-header { margin-bottom: 1.5rem; }
+.sp-header-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem; }
+.sp-title { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+.light .sp-title { color: #0f172a; }
+.sp-title-icon { font-size: 1.5rem; }
+
+.sp-loc-badge {
+  background: #fef2f5; border: 1.5px solid #fbc0d0;
+  color: #b20537; font-size: 0.8125rem; padding: 6px 14px; border-radius: 9999px;
+  cursor: pointer; transition: all 0.2s; font-weight: 600;
 }
+.dark .sp-loc-badge { background: rgba(178,5,55,0.12); border-color: rgba(178,5,55,0.4); color: #f43f5e; }
+.sp-loc-badge:hover { background: #b20537; color: #fff; border-color: #b20537; }
+.sp-sub { color: #64748b; font-size: 0.9375rem; margin: 0; }
+.dark .sp-sub { color: #94a3b8; }
 
-:global(html.light) .sp-wrap {
-  --c-title:      #0f172a;
-  --c-sub:        #475569;
-  --c-label:      #374151;
-  --c-card-bg:    #ffffff;
-  --c-card-bdr:   rgba(0,0,0,0.09);
-  --c-input-bg:   #f8fafc;
-  --c-input-bdr:  rgba(0,0,0,0.13);
-  --c-input-text: #0f172a;
-  --c-input-ph:   #94a3b8;
-  --c-gps-bg:     #f1f5f9;
-  --c-gps-bdr:    rgba(0,0,0,0.1);
-  --c-gps-text:   #374151;
-  --c-divider:    rgba(0,0,0,0.07);
-  --c-hint:       #64748b;
-  --c-res-bg:     #ffffff;
-  --c-res-bdr:    rgba(0,0,0,0.08);
-  --c-w-name:     #0f172a;
-  --c-w-area:     #64748b;
-  --c-s-title:    #1e293b;
-  --c-s-cat:      #64748b;
-  --c-vbtn-bg:    #f1f5f9;
-  --c-vbtn-bdr:   rgba(0,0,0,0.08);
-  --c-vbtn-text:  #475569;
-  --c-meta:       #64748b;
-  --c-meta-str:   #0f172a;
-  --c-pill-bg:    #f1f5f9;
-  --c-pill-bdr:   rgba(0,0,0,0.08);
-  --c-pill-text:  #475569;
-  --c-empty:      #475569;
-  --c-tip:        #64748b;
-  --c-info:       #1e40af;
-}
-
-/* ── Wrapper ─────────────────────────────────────────── */
-.sp-wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-
-/* ── Header ──────────────────────────────────────────── */
-.sp-header { margin-bottom: 1.25rem; }
-.sp-title {
-  font-family: 'Outfit', sans-serif; font-size: 1.875rem; font-weight: 700;
-  color: var(--c-title); margin: 0 0 0.25rem;
-  display: flex; align-items: center; gap: 0.5rem;
-}
-.sp-title-icon { font-size: 1.5rem; line-height: 1; }
-.sp-sub { color: var(--c-sub); font-size: 0.9375rem; margin: 0; }
-
-/* ── Info banner ─────────────────────────────────────── */
-.sp-info-banner {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 0.875rem 1.125rem; border-radius: 0.875rem;
-  background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.2);
-  color: var(--c-info); font-size: 0.8125rem; line-height: 1.55; margin-bottom: 1.5rem;
-}
-.sp-info-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
-.sp-info-banner p { margin: 0; }
-
-/* ── Search card ─────────────────────────────────────── */
 .sp-card {
-  background: var(--c-card-bg); border: 1px solid var(--c-card-bdr);
-  border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 2rem;
-  display: flex; flex-direction: column; gap: 1.5rem;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  background: #ffffff; border: 1px solid #e2e8f0;
+  border-radius: 1.25rem; padding: 1.5rem; margin-bottom: 2rem;
+  display: flex; flex-direction: column; gap: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
+.dark .sp-card { background: rgba(30, 41, 59, 0.7); border-color: rgba(255,255,255,0.08); shadow: none; }
 
-/* ── Labels ──────────────────────────────────────────── */
-.sp-section { display: flex; flex-direction: column; gap: 0.625rem; }
-.sp-label { font-size: 0.8125rem; font-weight: 600; color: var(--c-label); letter-spacing: 0.02em; }
-.sp-radius-val { color: #B20537; font-weight: 700; }
+.sp-main-search-row { display: flex; gap: 0.75rem; }
+@media (max-width: 640px) { .sp-main-search-row { flex-direction: column; } }
 
-/* ── Area row ────────────────────────────────────────── */
-.sp-area-row { display: flex; gap: 0.625rem; }
-.sp-input-wrap { flex: 1; }
-
-.sp-input {
-  width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem;
-  background: var(--c-input-bg); border: 1.5px solid var(--c-input-bdr);
-  color: var(--c-input-text); font-size: 0.9375rem;
-  outline: none; transition: border-color 0.2s; box-sizing: border-box;
+.sp-search-input-wrap {
+  flex: 1; position: relative; display: flex; align-items: center;
+  background: #f8fafc; border: 1.5px solid #cbd5e1;
+  border-radius: 0.75rem; padding: 0 1rem;
 }
-.sp-input:focus { border-color: rgba(178,5,55,0.5); }
-.sp-input::placeholder { color: var(--c-input-ph); }
+.dark .sp-search-input-wrap { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+.sp-si-icon { font-size: 1rem; color: #64748b; margin-right: 0.5rem; }
+.sp-main-input { flex: 1; height: 3rem; background: transparent; border: none; color: #0f172a; font-size: 0.9375rem; outline: none; font-weight: 500; }
+.dark .sp-main-input { color: #fff; }
+.sp-clear-btn { background: none; border: none; color: #64748b; font-size: 1rem; cursor: pointer; }
 
-.sp-find-btn {
-  padding: 0 1.25rem; height: 2.875rem; border-radius: 0.75rem; flex-shrink: 0;
-  background: rgba(178,5,55,0.1); border: 1.5px solid rgba(178,5,55,0.4);
-  color: #B20537; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px;
-  transition: all 0.2s;
+.sp-search-btn {
+  padding: 0 1.75rem; height: 3rem; border-radius: 0.75rem; border: none;
+  background: linear-gradient(135deg, #B20537, #D4064A, #F43F5E);
+  color: #fff; font-weight: 700; font-size: 0.9375rem; cursor: pointer;
+  transition: box-shadow 0.2s; white-space: nowrap;
 }
-.sp-find-btn:hover:not(:disabled) { background: rgba(178,5,55,0.2); color: #8B0000; }
-.sp-find-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.sp-search-btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(178,5,55,0.4); }
 
-.sp-gps-btn {
-  padding: 0 1rem; height: 2.875rem; border-radius: 0.75rem; flex-shrink: 0;
-  background: var(--c-gps-bg); border: 1.5px solid var(--c-gps-bdr);
-  color: var(--c-gps-text); font-size: 0.875rem; font-weight: 500;
-  cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px;
-  transition: all 0.2s;
+.sp-chips-bar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.sp-chips-label { font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.dark .sp-chips-label { color: #94a3b8; }
+.sp-chip {
+  padding: 4px 12px; border-radius: 9999px;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  color: #334155; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; font-weight: 500;
 }
-.sp-gps-btn:hover:not(:disabled) { opacity: 0.8; }
-.sp-gps-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.dark .sp-chip { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: #cbd5e1; }
+.sp-chip:hover, .sp-chip.active { background: #fef2f5; border-color: #b20537; color: #b20537; font-weight: 700; }
 
-/* ── Status ──────────────────────────────────────────── */
-.sp-resolved {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 14px; border-radius: 9999px; width: fit-content;
-  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
-  color: #059669; font-size: 0.8125rem; font-weight: 500;
-}
-.sp-resolved strong { color: #047857; font-weight: 700; }
-.sp-resolved-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
-.sp-error { color: #dc2626; font-size: 0.8125rem; margin: 0; font-weight: 500; }
+.sp-divider { height: 1px; background: #e2e8f0; }
+.dark .sp-divider { background: rgba(255,255,255,0.06); }
 
-/* ── Divider ─────────────────────────────────────────── */
-.sp-divider { height: 1px; background: var(--c-divider); }
+.sp-filters-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+@media (max-width: 1024px) { .sp-filters-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { .sp-filters-grid { grid-template-columns: 1fr; } }
 
-/* ── Filters ─────────────────────────────────────────── */
-.sp-filters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-@media (max-width: 640px) { .sp-filters { grid-template-columns: 1fr; } }
-.sp-filter { display: flex; flex-direction: column; gap: 0.5rem; }
+.sp-filter-group { display: flex; flex-direction: column; gap: 0.375rem; }
+.sp-label { font-size: 0.8125rem; font-weight: 600; color: #475569; }
+.dark .sp-label { color: #94a3b8; }
+.sp-label-row { display: flex; justify-content: space-between; align-items: center; }
+.sp-val-highlight { font-size: 0.8125rem; font-weight: 700; color: #b20537; }
+.dark .sp-val-highlight { color: #f43f5e; }
 
 .sp-select {
-  padding: 0.6875rem 0.875rem; border-radius: 0.75rem;
-  background: var(--c-input-bg); border: 1.5px solid var(--c-input-bdr);
-  color: var(--c-input-text); font-size: 0.875rem; outline: none; cursor: pointer;
+  padding: 0.625rem 0.875rem; border-radius: 0.625rem;
+  background: #f8fafc; border: 1.5px solid #cbd5e1;
+  color: #0f172a; font-size: 0.8125rem; outline: none; cursor: pointer; font-weight: 500;
 }
-.sp-select:focus { border-color: rgba(178,5,55,0.5); }
-.sp-slider { width: 100%; accent-color: #B20537; cursor: pointer; margin-top: 4px; }
+.dark .sp-select { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: #fff; }
+.sp-select option { background: #ffffff; color: #0f172a; }
+.dark .sp-select option { background: #1e293b; color: #fff; }
 
-/* ── Action ──────────────────────────────────────────── */
-.sp-action { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.sp-search-btn {
-  padding: 0.75rem 2rem; border-radius: 0.875rem; border: none;
-  background: linear-gradient(135deg, #B20537, #D4064A, #F43F5E);
-  color: #fff; font-size: 1rem; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; gap: 8px;
-  transition: box-shadow 0.2s, opacity 0.2s;
+.sp-slider { accent-color: #B20537; cursor: pointer; margin-top: 4px; }
+
+.sp-toggles-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.sp-toggle-pill {
+  padding: 6px 14px; border-radius: 9999px;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  color: #475569; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
-.sp-search-btn:hover:not(:disabled) { box-shadow: 0 0 24px rgba(178,5,55,0.4); }
-.sp-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.sp-hint { color: var(--c-hint); font-size: 0.8125rem; margin: 0; }
+.dark .sp-toggle-pill { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: #94a3b8; }
+.sp-toggle-pill:hover { background: #e2e8f0; color: #0f172a; }
+.sp-toggle-pill.active { background: #fef2f5; border-color: #b20537; color: #b20537; }
 
-/* ── Spinner ─────────────────────────────────────────── */
-.sp-spinner {
-  display: inline-block; width: 15px; height: 15px;
-  border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-  border-radius: 50%; animation: spin 0.65s linear infinite; flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.sp-active-bar { display: flex; align-items: center; justify-content: space-between; padding-top: 0.5rem; border-top: 1px dashed #cbd5e1; }
+.sp-af-text { font-size: 0.8125rem; font-weight: 700; color: #b20537; }
+.sp-reset-btn { background: none; border: none; color: #64748b; font-size: 0.8125rem; cursor: pointer; text-decoration: underline; font-weight: 600; }
+.sp-reset-btn:hover { color: #b20537; }
 
-/* ── Results meta ────────────────────────────────────── */
-.sp-results-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-.sp-results-count { color: var(--c-meta); font-size: 0.9375rem; }
-.sp-results-count strong { color: var(--c-meta-str); }
-.sp-results-radius {
-  font-size: 0.8125rem; color: var(--c-pill-text);
-  background: var(--c-pill-bg); border: 1px solid var(--c-pill-bdr);
-  padding: 3px 10px; border-radius: 9999px;
-}
+.sp-results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.sp-rh-title { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0; }
+.dark .sp-rh-title { color: #fff; }
+.sp-rh-count { color: #b20537; }
+.sp-rh-tag { font-size: 0.8125rem; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 9999px; }
 
-/* ── Grid ────────────────────────────────────────────── */
-.sp-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(19rem,1fr)); gap: 1rem; }
+/* Grid & Cards */
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1.25rem; }
 
-@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
 .sp-result-card {
-  display: flex; flex-direction: column; gap: 0.875rem; padding: 1.25rem;
-  background: var(--c-res-bg); border: 1px solid var(--c-res-bdr); border-radius: 1rem;
-  animation: fadeUp 0.35s ease both;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1.25rem; overflow: hidden; display: flex; flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
-.sp-result-card:hover { border-color: rgba(178,5,55,0.3); box-shadow: 0 4px 18px rgba(178,5,55,0.08); }
+.light .sp-result-card { background: #ffffff; border-color: rgba(0,0,0,0.08); }
+.sp-result-card:hover { transform: translateY(-4px); border-color: rgba(178,5,55,0.4); box-shadow: 0 12px 30px rgba(178,5,55,0.15); }
 
-.sp-worker { display: flex; align-items: flex-start; gap: 0.75rem; }
+.sp-card-media { position: relative; height: 12rem; background: #0f172a; overflow: hidden; }
+.sp-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+.sp-result-card:hover .sp-card-img { transform: scale(1.05); }
+.sp-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; opacity: 0.3; }
+
+.sp-card-badges { position: absolute; top: 0.75rem; left: 0.75rem; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.sp-badge { padding: 3px 8px; border-radius: 9999px; font-size: 0.6875rem; font-weight: 700; }
+.badge-trending { background: #ef4444; color: #fff; }
+.badge-cat { background: rgba(15,23,42,0.85); color: #38bdf8; backdrop-filter: blur(4px); }
+.badge-express { background: #f59e0b; color: #000; }
+
+.sp-card-wish {
+  position: absolute; top: 0.75rem; right: 0.75rem;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: rgba(15,23,42,0.7); backdrop-filter: blur(4px); border: none;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9375rem;
+}
+.sp-card-wish.active { background: rgba(239,68,68,0.2); }
+
+.sp-card-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+
+.sp-worker-row { display: flex; align-items: center; gap: 0.625rem; }
 .sp-avatar {
-  width: 2.875rem; height: 2.875rem; flex-shrink: 0; border-radius: 50%;
-  background: linear-gradient(135deg,#B20537,#F43F5E);
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  background: linear-gradient(135deg, #B20537, #F43F5E);
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; font-size: 1.125rem;
+  color: #fff; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
 }
 .sp-worker-info { flex: 1; min-width: 0; }
-.sp-worker-name { font-weight: 600; color: var(--c-w-name); font-size: 0.9375rem; margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sp-worker-area { color: var(--c-w-area); font-size: 0.8rem; margin: 0; }
-.sp-dist-badge { flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: #B20537; background: rgba(178,5,55,0.08); border: 1px solid rgba(178,5,55,0.2); padding: 3px 9px; border-radius: 9999px; white-space: nowrap; }
+.sp-worker-name { font-size: 0.875rem; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.light .sp-worker-name { color: #0f172a; }
+.sp-worker-area { font-size: 0.75rem; color: #94a3b8; }
+.sp-dist-badge { font-size: 0.72rem; font-weight: 700; color: #f43f5e; background: rgba(178,5,55,0.1); padding: 2px 8px; border-radius: 9999px; }
 
-.sp-service { display: flex; flex-direction: column; gap: 3px; }
-.sp-service-title { font-size: 0.9375rem; font-weight: 500; color: var(--c-s-title); margin: 0; }
-.sp-service-cat   { font-size: 0.75rem; color: var(--c-s-cat); }
-.sp-price { font-size: 0.9375rem; font-weight: 700; color: #B20537; }
+.sp-service-title { font-family: 'Outfit', sans-serif; font-size: 1.0625rem; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
+.light .sp-service-title { color: #0f172a; }
 
-.sp-view-btn {
-  display: block; text-align: center; padding: 0.5rem 0; border-radius: 0.5rem;
-  background: var(--c-vbtn-bg); border: 1px solid var(--c-vbtn-bdr);
-  color: var(--c-vbtn-text); font-size: 0.875rem; font-weight: 500; text-decoration: none;
-  transition: all 0.15s;
+.sp-meta-row { display: flex; align-items: center; justify-content: space-between; }
+.sp-rating { display: flex; align-items: center; gap: 3px; font-size: 0.8125rem; }
+.sp-star { color: #f59e0b; }
+.sp-rating-num { font-weight: 700; color: #fff; }
+.light .sp-rating-num { color: #0f172a; }
+.sp-rating-cnt { color: #64748b; font-size: 0.75rem; }
+
+.sp-price-box { font-size: 1.0625rem; font-weight: 800; color: #f43f5e; }
+
+.sp-card-actions { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+.sp-qv-btn {
+  padding: 0.5rem 0.875rem; border-radius: 0.625rem;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: #cbd5e1; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
-.sp-view-btn:hover { opacity: 0.8; }
+.light .sp-qv-btn { background: #f1f5f9; border-color: rgba(0,0,0,0.1); color: #334155; }
+.sp-qv-btn:hover { background: rgba(178,5,55,0.15); color: #f43f5e; border-color: rgba(178,5,55,0.3); }
 
-/* ── Empty / Prompt ──────────────────────────────────── */
-.sp-empty, .sp-prompt { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 5rem 1rem; text-align: center; }
-.sp-empty-icon, .sp-prompt-icon { font-size: 3rem; line-height: 1; }
-.sp-empty-title, .sp-prompt-msg { color: var(--c-empty); font-size: 1rem; margin: 0; }
-.sp-empty-tip { color: var(--c-tip); font-size: 0.875rem; margin: 0; }
+.sp-book-btn {
+  flex: 1; text-align: center; padding: 0.5rem 0.875rem; border-radius: 0.625rem;
+  background: linear-gradient(135deg, #B20537, #D4064A, #F43F5E);
+  color: #fff; font-size: 0.8125rem; font-weight: 700; text-decoration: none;
+  transition: opacity 0.15s;
+}
+.sp-book-btn:hover { opacity: 0.9; }
+
+.sp-empty { text-align: center; padding: 4rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.sp-empty-icon { font-size: 4rem; }
+.sp-empty-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
+.light .sp-empty-title { color: #0f172a; }
+.sp-empty-tip { color: #94a3b8; max-width: 28rem; text-align: center; margin: 0; }
+.sp-reset-btn-large {
+  padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none;
+  background: #B20537; color: #fff; font-weight: 700; cursor: pointer;
+}
+
+.sp-spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.65s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

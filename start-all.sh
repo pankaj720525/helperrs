@@ -30,12 +30,16 @@ stop_all() {
 
   while IFS='=' read -r name pid; do
     if kill -0 "$pid" 2>/dev/null; then
-      kill "$pid" 2>/dev/null
+      kill -9 "$pid" 2>/dev/null
+      taskkill //F //PID "$pid" 2>/dev/null || true
       echo "  ✔  Stopped $name  (PID $pid)"
     else
       echo "  –  $name was not running  (PID $pid)"
     fi
   done < "$PID_FILE"
+
+  # Kill any orphan node processes on Windows
+  taskkill //F //IM node.exe 2>/dev/null || true
 
   rm -f "$PID_FILE"
 

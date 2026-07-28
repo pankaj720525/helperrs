@@ -1,86 +1,62 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-    <NuxtLink to="/dashboard" class="text-sm text-slate-400 hover:text-primary-light mb-4 inline-block">← Back to Dashboard</NuxtLink>
-    <h1 class="text-2xl font-heading font-bold text-white mb-6">🔔 Notification Preferences</h1>
-
-    <div class="space-y-6">
-      <!-- Email Notifications -->
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-heading font-semibold text-white mb-1">Email Notifications</h2>
-        <p class="text-sm text-slate-400 mb-4">Control which emails you receive from us</p>
-        <div class="space-y-1">
-          <PreferenceToggle
-            label="Email Notifications"
-            description="Receive email notifications for new chats, service updates"
-            :value="prefs.email_enabled"
-            @toggle="() => { prefs.email_enabled = !prefs.email_enabled; save(); }"
-          />
-        </div>
+  <div class="space-y-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-heading font-extrabold text-slate-900 mb-1">🔔 Notification Preferences</h1>
+        <p class="text-sm text-slate-500 font-medium">Control email alerts and in-app message notifications</p>
       </div>
+    </div>
 
-      <!-- Push Notifications -->
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-heading font-semibold text-white mb-1">Push Notifications</h2>
-        <p class="text-sm text-slate-400 mb-4">In-app real-time push notifications</p>
-        <div class="space-y-1">
-          <PreferenceToggle
-            label="Push Notifications"
-            description="Receive real-time push notifications in the browser"
-            :value="prefs.push_enabled"
-            @toggle="() => { prefs.push_enabled = !prefs.push_enabled; save(); }"
-          />
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      <div class="flex items-center justify-between py-4 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Email Notifications</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Receive email notifications for new messages & service bookings</p>
         </div>
-      </div>
-
-      <!-- Audio Alerts -->
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-heading font-semibold text-white mb-1">Audio Alerts</h2>
-        <p class="text-sm text-slate-400 mb-4">Play a sound when you receive new messages</p>
-        <div class="space-y-1">
-          <PreferenceToggle
-            label="Audio Alerts"
-            description="Play notification sound for new chat messages"
-            :value="prefs.audio_enabled"
-            @toggle="() => { prefs.audio_enabled = !prefs.audio_enabled; save(); }"
-          />
-        </div>
-        <button @click="testSound" class="mt-4 px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-sm hover:bg-white/10 transition-colors">
-          🔊 Test Sound
+        <button
+          type="button"
+          @click="prefs.email_enabled = !prefs.email_enabled; save();"
+          class="w-12 h-6 rounded-full transition-colors relative cursor-pointer"
+          :class="prefs.email_enabled ? 'bg-rose-600' : 'bg-slate-200'"
+        >
+          <span class="w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all" :class="prefs.email_enabled ? 'right-0.5' : 'left-0.5'" />
         </button>
       </div>
 
-      <p v-if="saved" class="text-success text-sm text-center animate-fade-in">✅ Preferences saved</p>
+      <div class="flex items-center justify-between py-4">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">In-App Push Alerts</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Receive instant browser popup notifications when online</p>
+        </div>
+        <button
+          type="button"
+          @click="prefs.push_enabled = !prefs.push_enabled; save();"
+          class="w-12 h-6 rounded-full transition-colors relative cursor-pointer"
+          :class="prefs.push_enabled ? 'bg-rose-600' : 'bg-slate-200'"
+        >
+          <span class="w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all" :class="prefs.push_enabled ? 'right-0.5' : 'left-0.5'" />
+        </button>
+      </div>
+
+      <p v-if="saved" class="text-emerald-600 text-xs font-bold animate-fade-in">✅ Preferences saved!</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const api = useApi();
-const userStore = useUserStore();
-const { playNotificationSound } = useAudio();
+definePageMeta({ layout: 'dashboard' });
 
-const prefs = reactive({ email_enabled: true, push_enabled: true, audio_enabled: true });
+const api = useApi();
+
+const prefs = reactive({ email_enabled: true, push_enabled: true });
 const saved = ref(false);
 
-onMounted(async () => {
-  userStore.loadFromStorage();
-  if (!userStore.isAuthenticated) return navigateTo('/login');
-
-  try {
-    const data = await api.get<any>('/preferences');
-    Object.assign(prefs, data);
-  } catch { }
-});
-
 const save = async () => {
+  saved.value = false;
   try {
-    await api.put('/preferences', prefs);
+    await api.put('/auth/notifications', prefs);
     saved.value = true;
-    setTimeout(() => { saved.value = false; }, 2000);
-  } catch { }
-};
-
-const testSound = () => {
-  playNotificationSound();
+    setTimeout(() => { saved.value = false; }, 3000);
+  } catch {}
 };
 </script>

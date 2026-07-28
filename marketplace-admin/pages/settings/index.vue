@@ -1,14 +1,18 @@
 <template>
   <div class="space-y-6">
-    <h2 class="text-xl font-heading font-bold text-white">Global Settings</h2>
+    <!-- Page Header with Breadcrumbs -->
+    <UiPageHeader
+      title="Global Platform Settings"
+      description="Configure system notification master switches, search radii, and platform defaults."
+    />
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Notification Controls -->
-      <div class="glass rounded-2xl p-6 animate-fade-up">
-        <h3 class="text-lg font-heading font-semibold text-white mb-4">🔔 Notification Master Switches</h3>
-        <p class="text-xs text-slate-400 mb-5">These switches control ALL outgoing notifications system-wide.</p>
+      <div class="bg-white dark:bg-[#1E293B] rounded-2xl p-6 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-up">
+        <h3 class="text-base font-heading font-bold text-slate-900 dark:text-white mb-2">🔔 Notification Master Switches</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">These switches control ALL outgoing notifications system-wide.</p>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
           <SettingToggle
             v-for="key in ['global_email_enabled', 'global_push_enabled', 'global_audio_enabled']"
             :key="key"
@@ -21,19 +25,19 @@
       </div>
 
       <!-- Platform Settings -->
-      <div class="glass rounded-2xl p-6 animate-fade-up" style="animation-delay: 0.1s">
-        <h3 class="text-lg font-heading font-semibold text-white mb-4">⚙️ Platform Configuration</h3>
+      <div class="bg-white dark:bg-[#1E293B] rounded-2xl p-6 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-up" style="animation-delay: 0.1s">
+        <h3 class="text-base font-heading font-bold text-slate-900 dark:text-white mb-4">⚙️ Platform Configuration</h3>
         <div class="space-y-4">
           <div v-for="key in ['platform_name', 'platform_email', 'default_search_radius', 'max_search_radius']" :key="key">
-            <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ settingLabel(key) }}</label>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{{ settingLabel(key) }}</label>
             <input
               v-model="settings[key]"
               type="text"
-              class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-primary"
             />
           </div>
-          <button @click="savePlatformSettings" class="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all">
-            Save Settings
+          <button @click="savePlatformSettings" class="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">
+            Save Platform Settings
           </button>
         </div>
       </div>

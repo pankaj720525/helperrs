@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-10",
 
-  ssr: true, // SSR enabled for SEO
+  ssr: false, // SPA mode for client compatibility on Windows
 
   css: ["~/assets/css/main.css"],
 

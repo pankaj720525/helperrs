@@ -4,16 +4,19 @@ namespace Database\Seeders;
 
 use App\Models\Admin;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@servicemarketplace.com',
-            'password' => 'password123',
-            'is_active' => true,
-        ]);
+        Admin::updateOrCreate(
+            ['email' => 'admin@servicemarketplace.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => 'password123',
+                'is_active' => true,
+            ]
+        );
     }
 }

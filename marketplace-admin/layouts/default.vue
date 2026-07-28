@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen gradient-dark flex">
+  <div class="min-h-screen bg-[#F4F5F8] dark:bg-[#0F172A] flex transition-colors duration-200">
     <!-- Sidebar -->
     <AdminSidebar />
 

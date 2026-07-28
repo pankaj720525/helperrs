@@ -107,6 +107,7 @@ class ChatController extends Controller
 
         $messages = $chat->messages()
             ->with('sender')
+            ->reorder()
             ->latest()
             ->paginate($request->per_page ?? 30);
 

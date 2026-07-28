@@ -9,6 +9,7 @@ use App\Models\WorkerProfile;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -106,6 +107,33 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'Worker profile updated successfully.',
             'worker_profile' => new WorkerProfileResource($profile->fresh()->load('user')),
+        ]);
+    }
+
+    /**
+     * Change current user password.
+     */
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password'     => ['required', 'string', 'min:8'],
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'The provided current password does not match your record.',
+            ], 422);
+        }
+
+        $user->update([
+            'password' => $validated['new_password'],
+        ]);
+
+        return response()->json([
+            'message' => 'Password updated successfully.',
         ]);
     }
 }

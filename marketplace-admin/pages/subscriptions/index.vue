@@ -1,67 +1,146 @@
 <template>
   <div class="space-y-6">
-    <div class="glass rounded-2xl p-5 flex flex-wrap items-center gap-4">
-      <input v-model="search" type="text" placeholder="Search by user name or email..."
-        class="flex-1 min-w-[200px] px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm" />
-      <select v-model="statusFilter"
-        class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm">
-        <option value="">All</option>
+    <!-- Page Header with Breadcrumbs -->
+    <UiPageHeader
+      title="Provider Subscriptions"
+      description="Monitor worker membership plans, trial status, and manual plan extensions."
+    >
+      <template #actions>
+        <button
+          @click="showAdvanceFilters = !showAdvanceFilters"
+          class="px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all shadow-xs"
+          :class="showAdvanceFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50'"
+        >
+          <span>⚡</span> {{ showAdvanceFilters ? 'Hide Advanced Filters' : 'Advanced Filters' }}
+        </button>
+      </template>
+    </UiPageHeader>
+
+    <!-- Advanced Filter Bar -->
+    <div
+      v-if="showAdvanceFilters"
+      class="bg-white dark:bg-[#1E293B] rounded-2xl p-5 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-down space-y-4"
+    >
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          Advanced Subscription Filters
+        </h3>
+        <button @click="clearFilters" class="text-xs text-rose-500 hover:underline font-medium">Reset All</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Search User</label>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Name or email..."
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+          />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Plan Type</label>
+          <select
+            v-model="planFilter"
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+          >
+            <option value="">All Plans</option>
+            <option value="trial">Trial Period</option>
+            <option value="monthly">Monthly Plan</option>
+            <option value="yearly">Yearly Plan</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Subscription Status</label>
+          <select
+            v-model="statusFilter"
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="expired">Expired Only</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <button
+            @click="loadSubs"
+            class="w-full py-2 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-xs"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div v-else class="bg-white dark:bg-[#1E293B] rounded-2xl p-4 border border-[#EAEDF1] dark:border-[#334155] shadow-sm flex flex-wrap items-center gap-3">
+      <input v-model="search" type="text" placeholder="Search by user name or email..." @keyup.enter="loadSubs"
+        class="flex-1 min-w-[200px] px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary text-xs" />
+      <select v-model="statusFilter" @change="loadSubs"
+        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs">
+        <option value="">All Status</option>
         <option value="active">Active</option>
         <option value="expired">Expired</option>
       </select>
-      <select v-model="planFilter"
-        class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm">
+      <select v-model="planFilter" @change="loadSubs"
+        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs">
         <option value="">All Plans</option>
         <option value="trial">Trial</option>
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
       </select>
-      <button @click="loadSubs" class="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all">Search</button>
+      <button @click="loadSubs" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">Search</button>
     </div>
 
-    <div class="glass rounded-2xl overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-white/5">
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">User</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Plan</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Period</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Days Left</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Status</th>
-            <th class="text-right px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="sub in subscriptions" :key="sub.id" class="border-b border-white/3 hover:bg-white/3 transition-colors">
-            <td class="px-5 py-4 text-slate-200">{{ sub.user?.name || '-' }}</td>
-            <td class="px-5 py-4"><UiStatusBadge :status="sub.plan_type" :label="sub.plan_type" :dot="false" /></td>
-            <td class="px-5 py-4 text-slate-400 text-xs">{{ sub.starts_at }} → {{ sub.expires_at }}</td>
-            <td class="px-5 py-4">
-              <span :class="sub.days_remaining <= 7 ? 'text-danger font-semibold' : sub.days_remaining <= 30 ? 'text-warning' : 'text-success'">
-                {{ sub.days_remaining }} days
-              </span>
-            </td>
-            <td class="px-5 py-4"><UiStatusBadge :status="sub.is_expired ? 'expired' : 'active'" /></td>
-            <td class="px-5 py-4 text-right">
-              <button @click="openExtendModal(sub)" class="px-3 py-1.5 rounded-lg bg-info/15 text-info text-xs font-medium hover:bg-info/25 transition-colors">Extend</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-if="!subscriptions.length" class="p-10 text-center text-slate-500">No subscriptions found.</div>
+    <!-- Data Table -->
+    <div class="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#EAEDF1] dark:border-[#334155] shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-[#EAEDF1] dark:border-[#334155]">
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Period</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Days Left</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+              <th class="text-right px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="sub in subscriptions" :key="sub.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+              <td class="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100">{{ sub.user?.name || '-' }}</td>
+              <td class="px-5 py-3.5"><UiStatusBadge :status="sub.plan_type" :label="sub.plan_type" :dot="false" /></td>
+              <td class="px-5 py-3.5 text-slate-500 dark:text-slate-400">{{ sub.starts_at }} → {{ sub.expires_at }}</td>
+              <td class="px-5 py-3.5 font-bold">
+                <span :class="sub.days_remaining <= 7 ? 'text-rose-600' : sub.days_remaining <= 30 ? 'text-amber-600' : 'text-emerald-600'">
+                  {{ sub.days_remaining }} days
+                </span>
+              </td>
+              <td class="px-5 py-3.5"><UiStatusBadge :status="sub.is_expired ? 'expired' : 'active'" /></td>
+              <td class="px-5 py-3.5 text-right">
+                <button @click="openExtendModal(sub)" class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 text-xs font-semibold hover:bg-blue-100 transition-colors">Extend</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="!subscriptions.length" class="p-10 text-center text-slate-400 text-xs">No subscriptions found.</div>
     </div>
 
     <!-- Extend Modal -->
     <UiModal v-model="extendModalOpen" title="Extend Subscription" confirm-label="Extend" @confirm="extendSub">
       <div class="space-y-4">
-        <p class="text-sm text-slate-300">Extending subscription for <strong class="text-white">{{ selectedSub?.user?.name }}</strong></p>
+        <p class="text-xs text-slate-600 dark:text-slate-300">Extending subscription for <strong class="text-slate-900 dark:text-white">{{ selectedSub?.user?.name }}</strong></p>
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1.5">Days to add</label>
-          <input v-model.number="extendDays" type="number" min="1" max="365" class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm" />
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Days to add</label>
+          <input v-model.number="extendDays" type="number" min="1" max="365" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1.5">Admin Notes</label>
-          <textarea v-model="extendNotes" rows="2" class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm resize-none" placeholder="Optional notes..." />
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Admin Notes</label>
+          <textarea v-model="extendNotes" rows="2" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs resize-none" placeholder="Optional notes..." />
         </div>
       </div>
     </UiModal>
@@ -73,12 +152,22 @@ definePageMeta({ middleware: "auth" });
 const api = useApi();
 const toast = useToast();
 
+const showAdvanceFilters = ref(false);
 const subscriptions = ref<any[]>([]);
-const search = ref(""); const statusFilter = ref(""); const planFilter = ref("");
+const search = ref("");
+const statusFilter = ref("");
+const planFilter = ref("");
 const extendModalOpen = ref(false);
 const selectedSub = ref<any>(null);
 const extendDays = ref(30);
 const extendNotes = ref("");
+
+const clearFilters = () => {
+  search.value = "";
+  statusFilter.value = "";
+  planFilter.value = "";
+  loadSubs();
+};
 
 const loadSubs = async () => {
   try {

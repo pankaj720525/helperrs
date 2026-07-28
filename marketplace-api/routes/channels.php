@@ -26,13 +26,13 @@ Broadcast::channel('user.{userId}', function (User $user, int $userId) {
 });
 
 // Chat channel — both participants can join
-Broadcast::channel('chat.{chatId}', function (User $user, int $chatId) {
-    $chat = Chat::find($chatId);
+Broadcast::channel('chat.{chatHashId}', function (User $user, string $chatHashId) {
+    $chat = Chat::findByHashId($chatHashId);
 
     if (!$chat) {
         return false;
     }
 
     // Allow if user is the client or the worker
-    return $user->id === $chat->user_id || $user->id === $chat->worker_user_id;
+    return $user->id === $chat->user_id || $user->id === $chat->worker_id;
 });

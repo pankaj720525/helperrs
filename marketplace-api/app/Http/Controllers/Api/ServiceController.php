@@ -41,7 +41,7 @@ class ServiceController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $service = Service::with(['category', 'user.workerProfile', 'reviews.user'])
+        $service = Service::with(['category', 'user.workerProfile', 'reviews.user', 'draftUpdate'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->findOrFail($id);
@@ -93,10 +93,25 @@ class ServiceController extends Controller
     {
         $services = $request->user()
             ->services()
-            ->with(['category'])
+            ->whereNull('parent_id') // Only show root services
+            ->with(['category', 'draftUpdate']) // Load the child draft/pending changes
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
-            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->status, function ($q, $status) {
+                if ($status === 'approved') {
+                    $q->where('status', 'approved');
+                } elseif ($status === 'pending') {
+                    $q->where(function ($q) {
+                        $q->where('status', 'pending')
+                          ->orWhereHas('draftUpdate', fn($q) => $q->where('status', 'pending'));
+                    });
+                } elseif ($status === 'rejected') {
+                    $q->where(function ($q) {
+                        $q->where('status', 'rejected')
+                          ->orWhereHas('draftUpdate', fn($q) => $q->where('status', 'rejected'));
+                    });
+                }
+            })
             ->latest()
             ->paginate($request->per_page ?? 15);
 
@@ -127,26 +142,77 @@ class ServiceController extends Controller
             'price_max'   => ['nullable', 'numeric', 'min:0', 'gte:price_min'],
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($service->image) {
-                Storage::disk('public')->delete($service->image);
-            }
-            $validated['image'] = $request->file('image')->store('services', 'public');
-        }
+        $user = $request->user();
 
-        // If content changes, reset to pending for re-approval
-        $contentChanged = isset($validated['title']) || isset($validated['description']);
-        if ($contentChanged && $service->isApproved()) {
+        if ($service->isApproved()) {
+            // Find or create a draft for this approved service
+            $draft = Service::where('parent_id', $service->id)
+                ->whereIn('status', ['pending', 'rejected'])
+                ->first();
+
+            $isNewDraft = false;
+            if (!$draft) {
+                $draft = new Service();
+                $draft->parent_id = $service->id;
+                $draft->user_id = $user->id;
+                $isNewDraft = true;
+            }
+
+            // Copy parent fields if it is a new draft record
+            if ($isNewDraft) {
+                $draft->category_id = $service->category_id;
+                $draft->title = $service->title;
+                $draft->description = $service->description;
+                $draft->image = $service->image;
+                $draft->price_min = $service->price_min;
+                $draft->price_max = $service->price_max;
+            }
+
+            // Apply validated updates
+            if (isset($validated['category_id'])) $draft->category_id = $validated['category_id'];
+            if (isset($validated['title'])) $draft->title = $validated['title'];
+            if (isset($validated['description'])) $draft->description = $validated['description'];
+            if (isset($validated['price_min'])) $draft->price_min = $validated['price_min'];
+            if (isset($validated['price_max'])) $draft->price_max = $validated['price_max'];
+
+            if ($request->hasFile('image')) {
+                // If draft had a custom image (different from parent), delete it
+                if (!$isNewDraft && $draft->image && $draft->image !== $service->image) {
+                    Storage::disk('public')->delete($draft->image);
+                }
+                $draft->image = $request->file('image')->store('services', 'public');
+            }
+
+            $draft->status = 'pending';
+            $draft->rejection_reason = null;
+            $draft->save();
+
+            return response()->json([
+                'message' => 'Changes submitted for admin approval.',
+                'service' => new ServiceResource($service->fresh()->load(['category', 'draftUpdate'])),
+            ]);
+        } else {
+            // Updating an unapproved service (root pending/rejected, or a child draft)
+            if ($request->hasFile('image')) {
+                if ($service->image) {
+                    $parent = $service->parent_id ? Service::find($service->parent_id) : null;
+                    if (!$parent || $parent->image !== $service->image) {
+                        Storage::disk('public')->delete($service->image);
+                    }
+                }
+                $validated['image'] = $request->file('image')->store('services', 'public');
+            }
+
             $validated['status'] = 'pending';
             $validated['rejection_reason'] = null;
+
+            $service->update($validated);
+
+            return response()->json([
+                'message' => 'Service updated successfully.',
+                'service' => new ServiceResource($service->fresh()->load('category')),
+            ]);
         }
-
-        $service->update($validated);
-
-        return response()->json([
-            'message' => $contentChanged ? 'Service updated. Re-approval required.' : 'Service updated successfully.',
-            'service' => new ServiceResource($service->fresh()->load('category')),
-        ]);
     }
 
     /**

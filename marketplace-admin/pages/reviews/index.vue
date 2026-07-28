@@ -1,58 +1,78 @@
 <template>
   <div class="space-y-6">
-    <div class="glass rounded-2xl p-5 flex flex-wrap items-center gap-4">
-      <input v-model="search" type="text" placeholder="Search reviews..."
-        class="flex-1 min-w-[200px] px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm" />
-      <select v-model="moderatedFilter"
-        class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm">
-        <option value="">All</option>
-        <option value="no">Unmoderated</option>
-        <option value="yes">Moderated</option>
+    <!-- Page Header with Breadcrumbs -->
+    <UiPageHeader
+      title="Customer Reviews Moderation"
+      description="Inspect ratings, approve feedback, and moderate reported reviews."
+    />
+
+    <!-- Filter Toolbar -->
+    <div class="bg-white dark:bg-[#1E293B] rounded-2xl p-4 border border-[#EAEDF1] dark:border-[#334155] shadow-sm flex flex-wrap items-center gap-3">
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Search reviews by user or comment..."
+        @keyup.enter="loadReviews"
+        class="flex-1 min-w-[200px] px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary text-xs"
+      />
+      <select
+        v-model="moderatedFilter"
+        @change="loadReviews"
+        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs"
+      >
+        <option value="">All Moderation Status</option>
+        <option value="no">Unmoderated Only</option>
+        <option value="yes">Moderated Only</option>
       </select>
-      <button @click="loadReviews" class="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all">Search</button>
+      <button @click="loadReviews" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">
+        Search
+      </button>
     </div>
 
-    <div class="glass rounded-2xl overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-white/5">
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Reviewer</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Service</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Rating</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Comment</th>
-            <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Status</th>
-            <th class="text-right px-5 py-4 text-xs font-semibold text-slate-400 uppercase">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="r in reviews" :key="r.id" class="border-b border-white/3 hover:bg-white/3 transition-colors">
-            <td class="px-5 py-4 text-slate-200">{{ r.user?.name || '-' }}</td>
-            <td class="px-5 py-4 text-slate-300">{{ r.service?.title || '-' }}</td>
-            <td class="px-5 py-4">
-              <span class="text-warning">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
-            </td>
-            <td class="px-5 py-4 text-slate-400 max-w-xs truncate">{{ r.comment || '-' }}</td>
-            <td class="px-5 py-4"><UiStatusBadge :status="r.is_moderated ? 'approved' : 'pending'" :label="r.is_moderated ? 'Moderated' : 'Pending'" /></td>
-            <td class="px-5 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <button v-if="!r.is_moderated" @click="confirmModerate(r)" class="px-3 py-1.5 rounded-lg bg-success/15 text-success text-xs font-medium hover:bg-success/25 transition-colors">Approve</button>
-                <button @click="confirmDelete(r)" class="px-3 py-1.5 rounded-lg bg-danger/15 text-danger text-xs font-medium hover:bg-danger/25 transition-colors">Delete</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-if="!reviews.length" class="p-10 text-center text-slate-500">No reviews found.</div>
+    <!-- Reviews Data Table -->
+    <div class="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#EAEDF1] dark:border-[#334155] shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-[#EAEDF1] dark:border-[#334155]">
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Reviewer</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Service</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rating</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Comment</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+              <th class="text-right px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="r in reviews" :key="r.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+              <td class="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100">{{ r.user?.name || '-' }}</td>
+              <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-medium">{{ r.service?.title || '-' }}</td>
+              <td class="px-5 py-3.5">
+                <span class="text-amber-500 font-bold">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
+              </td>
+              <td class="px-5 py-3.5 text-slate-600 dark:text-slate-400 max-w-xs truncate">{{ r.comment || '-' }}</td>
+              <td class="px-5 py-3.5"><UiStatusBadge :status="r.is_moderated ? 'approved' : 'pending'" :label="r.is_moderated ? 'Moderated' : 'Pending'" /></td>
+              <td class="px-5 py-3.5 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button v-if="!r.is_moderated" @click="confirmModerate(r)" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 text-xs font-semibold hover:bg-emerald-100 transition-colors">Approve</button>
+                  <button @click="confirmDelete(r)" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 text-xs font-semibold hover:bg-rose-100 transition-colors">Delete</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="!reviews.length" class="p-10 text-center text-slate-400 text-xs">No reviews found.</div>
     </div>
 
     <!-- Moderate Confirm -->
     <UiModal v-model="moderateModal" title="Approve Review" confirm-label="Approve" @confirm="moderate">
-      <p class="text-sm text-slate-300">Approve the review from <strong class="text-white">{{ selectedReview?.user?.name }}</strong>?</p>
+      <p class="text-xs text-slate-600 dark:text-slate-300">Approve the review from <strong class="text-slate-900 dark:text-white">{{ selectedReview?.user?.name }}</strong>?</p>
     </UiModal>
 
     <!-- Delete Confirm -->
     <UiModal v-model="deleteModal" title="Delete Review" confirm-label="Delete" :confirm-danger="true" @confirm="deleteReview">
-      <p class="text-sm text-slate-300">Permanently delete this review from <strong class="text-white">{{ selectedReview?.user?.name }}</strong>? This cannot be undone.</p>
+      <p class="text-xs text-slate-600 dark:text-slate-300">Permanently delete this review from <strong class="text-slate-900 dark:text-white">{{ selectedReview?.user?.name }}</strong>? This cannot be undone.</p>
     </UiModal>
   </div>
 </template>
@@ -87,6 +107,7 @@ const moderate = async () => {
   try {
     await api.put(`/admin/reviews/${selectedReview.value.id}/moderate`);
     toast.success("Review approved.");
+    moderateModal.value = false;
     loadReviews();
   } catch { toast.error("Failed."); }
 };
@@ -96,6 +117,7 @@ const deleteReview = async () => {
   try {
     await api.delete(`/admin/reviews/${selectedReview.value.id}`);
     toast.success("Review deleted.");
+    deleteModal.value = false;
     loadReviews();
   } catch { toast.error("Failed."); }
 };

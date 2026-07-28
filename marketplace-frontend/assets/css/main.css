@@ -95,6 +95,24 @@
   scrollbar-color: var(--color-surface-lighter) transparent;
 }
 
+/* ─── Shimmer Loading Skeleton Utility ─────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 0.75rem;
+}
+
+html.dark .shimmer-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
+  background-size: 200% 100%;
+}
+
 /* ─── Keyframes ─────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -167,7 +185,7 @@ html.light [class*="bg-surface"] {
 }
 
 /* Text colors */
-html.light .text-white { color: #0F172A !important; }
+html.light .text-white:not(button):not(button *):not(a):not(a *):not(.keep-white) { color: #0F172A !important; }
 html.light .text-slate-200 { color: #1E293B !important; }
 html.light .text-slate-300 { color: #334155 !important; }
 html.light .text-slate-400 { color: #475569 !important; }
@@ -212,3 +230,303 @@ html.light .font-heading { color: #0F172A; }
 html.light .bg-primary\/20 { background-color: rgba(178, 5, 55, 0.08) !important; }
 html.light .bg-primary\/10 { background-color: rgba(178, 5, 55, 0.05) !important; }
 
+/* ─── Dark Mode Overrides ───────────────────────────────── */
+html.dark body {
+  background-color: #0F172A;
+  color: #E2E8F0;
+}
+
+/* Background overrides for dark surfaces */
+html.dark .bg-slate-50 {
+  background-color: #0F172A !important;
+}
+
+html.dark .bg-white {
+  background-color: #1E293B !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #334155 !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #475569 !important;
+}
+
+html.dark .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Text color overrides */
+html.dark .text-slate-900 {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-slate-800 {
+  color: #F1F5F9 !important;
+}
+
+html.dark .text-slate-700 {
+  color: #E2E8F0 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.dark .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.dark .text-rose-600 {
+  color: #FB7185 !important;
+}
+
+html.dark .text-emerald-800,
+html.dark .text-emerald-700 {
+  color: #34D399 !important;
+}
+
+html.dark .text-amber-800,
+html.dark .text-amber-700 {
+  color: #FBBF24 !important;
+}
+
+/* Border overrides */
+html.dark .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .border-slate-200 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-slate-300 {
+  border-color: #475569 !important;
+}
+
+/* Inputs, Textareas, Selects */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #F43F5E !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Hover background states */
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #334155 !important;
+}
+
+html.dark .hover\:bg-slate-200:hover {
+  background-color: #475569 !important;
+}
+
+html.dark .hover\:bg-rose-100:hover {
+  background-color: rgba(244, 63, 94, 0.25) !important;
+}
+
+/* ─── Public Navbar Dark Mode Overrides ─── */
+html.dark .top-bar { background: #090d16 !important; color: #94a3b8 !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark .tb-badge { background: rgba(178,5,55,0.2) !important; border-color: rgba(178,5,55,0.4) !important; color: #f43f5e !important; }
+html.dark .tb-msg strong { color: #fff !important; }
+html.dark .tb-phone { color: #e2e8f0 !important; }
+html.dark .public-nav {
+  background: rgba(15, 23, 42, 0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+  box-shadow: none !important;
+}
+html.dark .logo-name { color: #fff !important; }
+html.dark .nav-loc-pill {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #f8fafc !important;
+}
+html.dark .nav-loc-pill:hover {
+  background: rgba(178,5,55,0.15) !important;
+  border-color: rgba(178,5,55,0.4) !important;
+}
+html.dark .nav-loc-value { color: #f8fafc !important; }
+html.dark .header-search {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+html.dark .hs-cat-select {
+  border-right-color: rgba(255,255,255,0.1) !important;
+  color: #cbd5e1 !important;
+}
+html.dark .hs-cat-select option {
+  background: #1e293b !important;
+  color: #fff !important;
+}
+html.dark .hs-input { color: #fff !important; }
+html.dark .wish-pill {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+html.dark .sub-nav {
+  background: rgba(10, 16, 30, 0.95) !important;
+  border-top-color: rgba(255,255,255,0.05) !important;
+}
+html.dark .sub-nav-item { color: #94a3b8 !important; }
+html.dark .sub-nav-item:hover { color: #fff !important; background: rgba(255,255,255,0.06) !important; }
+html.dark .lang-pill {
+  background: rgba(178, 5, 55, 0.12) !important;
+  color: #f9a8bd !important;
+  border-color: rgba(178, 5, 55, 0.5) !important;
+}
+html.dark .lang-menu {
+  background: rgba(15, 23, 42, 0.98) !important;
+  border-color: rgba(178, 5, 55, 0.25) !important;
+}
+html.dark .lang-item { color: #94a3b8 !important; }
+html.dark .lang-item:hover { background: rgba(255,255,255,0.06) !important; color: #fff !important; }
+html.dark .nav-link { color: #94a3b8 !important; }
+html.dark .mobile-menu {
+  background: #0f172a !important;
+  border-top-color: rgba(255,255,255,0.06) !important;
+}
+html.dark .mobile-search-input {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+html.dark .mobile-link { color: #94a3b8 !important; }
+html.dark .mobile-link:hover { background: rgba(255,255,255,0.06) !important; color: #fff !important; }
+html.dark .mobile-lang-btn {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #cbd5e1 !important;
+}
+
+/* ─── Public Footer Dark Mode Overrides ─── */
+html.dark .croma-footer {
+  background: #090d16 !important;
+  color: #94a3b8 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+html.dark .ft-banner {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+html.dark .ft-feat-icon {
+  background: rgba(178,5,55,0.15) !important;
+  border-color: rgba(178,5,55,0.3) !important;
+}
+html.dark .ft-feat-title { color: #fff !important; }
+html.dark .ft-feat-sub { color: #94a3b8 !important; }
+html.dark .ft-logo-text { color: #fff !important; }
+html.dark .ft-brand-desc { color: #94a3b8 !important; }
+html.dark .ft-rating-badge {
+  background: rgba(245,158,11,0.1) !important;
+  border-color: rgba(245,158,11,0.3) !important;
+}
+html.dark .ft-rb-star { color: #f59e0b !important; }
+html.dark .ft-rb-text { color: #cbd5e1 !important; }
+html.dark .ft-col-title { color: #fff !important; }
+html.dark .ft-link { color: #94a3b8 !important; }
+html.dark .ft-link-btn { color: #94a3b8 !important; }
+html.dark .ft-news-sub { color: #94a3b8 !important; }
+html.dark .ft-news-input {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+html.dark .ft-app-btn {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+html.dark .ft-bottom {
+  background: #05080f !important;
+  border-top-color: rgba(255,255,255,0.06) !important;
+}
+html.dark .ft-active-loc {
+  background: rgba(16,185,129,0.08) !important;
+  border-color: rgba(16,185,129,0.25) !important;
+  color: #10b981 !important;
+}
+html.dark .ft-active-loc strong { color: #fff !important; }
+html.dark .ft-chg-loc {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+html.dark .ft-pay-badge {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #cbd5e1 !important;
+}
+html.dark .ft-copy-row {
+  border-top-color: rgba(255,255,255,0.05) !important;
+  color: #64748b !important;
+}
+
+/* ─── Location Modal Dark Mode Overrides ─── */
+html.dark .loc-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+html.dark .loc-icon-bubble {
+  background: rgba(178,5,55,0.2) !important;
+  border-color: rgba(178,5,55,0.4) !important;
+}
+html.dark .loc-title { color: #f8fafc !important; }
+html.dark .loc-subtitle { color: #94a3b8 !important; }
+html.dark .loc-close-btn {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: transparent !important;
+  color: #94a3b8 !important;
+}
+html.dark .loc-current-badge {
+  background: rgba(178, 5, 55, 0.15) !important;
+  border-color: rgba(178, 5, 55, 0.4) !important;
+  color: #f43f5e !important;
+}
+html.dark .loc-cb-dot { background: #f43f5e !important; }
+html.dark .loc-input {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+html.dark .loc-input:focus { background: rgba(255,255,255,0.09) !important; }
+html.dark .loc-section-title { color: #94a3b8 !important; }
+html.dark .loc-city-pill {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #cbd5e1 !important;
+}
+html.dark .loc-area-btn {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #94a3b8 !important;
+}
+html.dark .loc-footer-note {
+  border-top-color: rgba(255,255,255,0.06) !important;
+  color: #94a3b8 !important;
+}

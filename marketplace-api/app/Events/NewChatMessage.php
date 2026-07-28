@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\ChatMessage;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -25,7 +26,7 @@ class NewChatMessage implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel("chat.{$this->chatId}"),
+            new PrivateChannel("chat.{$this->message->chat->hash_id}"),
         ];
     }
 

@@ -20,7 +20,8 @@ class AdminAuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $admin = Admin::where('email', $validated['email'])->first();
+        $email = trim($validated['email']);
+        $admin = Admin::where('email', $email)->first();
 
         if (!$admin || !Hash::check($validated['password'], $admin->password)) {
             return response()->json([

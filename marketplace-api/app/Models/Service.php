@@ -6,6 +6,7 @@ use App\Models\Concerns\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Service extends Model
 {
@@ -13,6 +14,7 @@ class Service extends Model
 
     protected $fillable = [
         'user_id',
+        'parent_id',
         'category_id',
         'title',
         'description',
@@ -49,6 +51,21 @@ class Service extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'approved_by');
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Service::class, 'parent_id');
+    }
+
+    public function pendingUpdate(): HasOne
+    {
+        return $this->hasOne(Service::class, 'parent_id')->where('status', 'pending');
+    }
+
+    public function draftUpdate(): HasOne
+    {
+        return $this->hasOne(Service::class, 'parent_id')->whereIn('status', ['pending', 'rejected']);
     }
 
     public function reviews(): HasMany

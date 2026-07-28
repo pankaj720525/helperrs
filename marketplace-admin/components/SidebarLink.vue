@@ -1,19 +1,25 @@
 <template>
   <NuxtLink
     :to="to"
-    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
+    class="relative flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 group"
     :class="isActive
-      ? 'bg-primary/15 text-primary-light border border-primary/20'
-      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'"
+      ? 'bg-[#EEF2FF] text-[#3858F9] dark:bg-[#1E293B] dark:text-[#818CF8]'
+      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/60'"
   >
-    <span class="text-base flex-shrink-0 w-5 text-center">{{ icon }}</span>
+    <!-- Left indicator accent line for active link -->
+    <span
+      v-if="isActive"
+      class="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#3858F9] dark:bg-[#818CF8] rounded-r"
+    />
+
+    <span class="text-sm flex-shrink-0 w-5 text-center">{{ icon }}</span>
     <transition name="fade">
       <span v-if="!uiStore.sidebarCollapsed" class="whitespace-nowrap">{{ label }}</span>
     </transition>
     <span
       v-if="badge && !uiStore.sidebarCollapsed"
-      class="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full"
-      :class="isActive ? 'bg-primary/20 text-primary-light' : 'bg-white/10 text-slate-300'"
+      class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+      :class="isActive ? 'bg-[#3858F9] text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'"
     >
       {{ badge }}
     </span>

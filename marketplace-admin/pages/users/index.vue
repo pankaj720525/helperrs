@@ -1,16 +1,93 @@
 <template>
   <div class="space-y-6">
-    <!-- Filters -->
-    <div class="glass rounded-2xl p-5 flex flex-wrap items-center gap-4">
+    <!-- Page Header with Breadcrumbs -->
+    <UiPageHeader
+      title="Users & Provider Management"
+      description="Manage marketplace customers, worker accounts, roles, and status."
+    >
+      <template #actions>
+        <button
+          @click="showAdvanceFilters = !showAdvanceFilters"
+          class="px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all shadow-xs"
+          :class="showAdvanceFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50'"
+        >
+          <span>⚡</span> {{ showAdvanceFilters ? 'Hide Advanced Filters' : 'Advanced Filters' }}
+        </button>
+      </template>
+    </UiPageHeader>
+
+    <!-- Advanced Filter Bar (Collapsible Panel) -->
+    <div
+      v-if="showAdvanceFilters"
+      class="bg-white dark:bg-[#1E293B] rounded-2xl p-5 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-down space-y-4"
+    >
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          Advanced User Filters
+        </h3>
+        <button @click="clearFilters" class="text-xs text-rose-500 hover:underline font-medium">Reset All</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Search User</label>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Name, email, phone..."
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+          />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Account Role</label>
+          <select
+            v-model="roleFilter"
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+          >
+            <option value="">All Roles</option>
+            <option value="user">Customer (User)</option>
+            <option value="worker">Service Provider (Worker)</option>
+            <option value="both">Both (Dual Account)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Account Status</label>
+          <select
+            v-model="statusFilterVal"
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive / Suspended</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <button
+            @click="loadUsers"
+            class="w-full py-2 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-xs"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div v-else class="bg-white dark:bg-[#1E293B] rounded-2xl p-4 border border-[#EAEDF1] dark:border-[#334155] shadow-sm flex flex-wrap items-center gap-3">
       <input
         v-model="search"
         type="text"
         placeholder="Search by name, email, phone..."
-        class="flex-1 min-w-[200px] px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 text-sm"
+        @keyup.enter="loadUsers"
+        class="flex-1 min-w-[200px] px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary text-xs"
       />
       <select
         v-model="roleFilter"
-        class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm"
+        @change="loadUsers"
+        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs"
       >
         <option value="">All Roles</option>
         <option value="user">User</option>
@@ -19,79 +96,80 @@
       </select>
       <select
         v-model="statusFilterVal"
-        class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 focus:outline-none focus:border-primary/50 text-sm"
+        @change="loadUsers"
+        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs"
       >
         <option value="">All Status</option>
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
       </select>
-      <button @click="loadUsers" class="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium hover:shadow-glow transition-all">
+      <button @click="loadUsers" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">
         Search
       </button>
     </div>
 
-    <!-- Users Table -->
-    <div class="glass rounded-2xl overflow-hidden">
+    <!-- Users Data Table -->
+    <div class="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#EAEDF1] dark:border-[#334155] shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-xs text-left">
           <thead>
-            <tr class="border-b border-white/5">
-              <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">User</th>
-              <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</th>
-              <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-              <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Notifications</th>
-              <th class="text-left px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Joined</th>
-              <th class="text-right px-5 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
+            <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-[#EAEDF1] dark:border-[#334155]">
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notifications</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+              <th class="text-right px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
             <tr
               v-for="user in users"
               :key="user.id"
-              class="border-b border-white/3 hover:bg-white/3 transition-colors"
+              class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
             >
-              <td class="px-5 py-4">
+              <td class="px-5 py-3.5">
                 <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                  <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-xs">
                     {{ user.name?.charAt(0)?.toUpperCase() }}
                   </div>
                   <div>
-                    <p class="font-medium text-slate-200">{{ user.name }}</p>
-                    <p class="text-xs text-slate-400">{{ user.email }}</p>
+                    <p class="font-semibold text-slate-900 dark:text-slate-100">{{ user.name }}</p>
+                    <p class="text-[11px] text-slate-400">{{ user.email }}</p>
                   </div>
                 </div>
               </td>
-              <td class="px-5 py-4">
+              <td class="px-5 py-3.5">
                 <UiStatusBadge :status="user.role" :label="user.role" :dot="false" />
               </td>
-              <td class="px-5 py-4">
+              <td class="px-5 py-3.5">
                 <UiStatusBadge :status="user.is_active ? 'active' : 'inactive'" />
               </td>
-              <td class="px-5 py-4">
+              <td class="px-5 py-3.5">
                 <div class="flex gap-2">
-                  <span class="text-xs" :class="user.admin_email_override ? 'text-danger' : 'text-success'">
+                  <span class="text-[11px] font-medium" :class="user.admin_email_override ? 'text-rose-600' : 'text-emerald-600'">
                     📧 {{ user.admin_email_override ? 'Muted' : 'OK' }}
                   </span>
-                  <span class="text-xs" :class="user.admin_push_override ? 'text-danger' : 'text-success'">
+                  <span class="text-[11px] font-medium" :class="user.admin_push_override ? 'text-rose-600' : 'text-emerald-600'">
                     🔔 {{ user.admin_push_override ? 'Muted' : 'OK' }}
                   </span>
                 </div>
               </td>
-              <td class="px-5 py-4 text-slate-400 text-xs">{{ user.created_at?.split('T')[0] }}</td>
-              <td class="px-5 py-4 text-right">
+              <td class="px-5 py-3.5 text-slate-500 dark:text-slate-400 font-medium">{{ user.created_at?.split('T')[0] }}</td>
+              <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <button
                     @click="toggleStatus(user)"
-                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                    class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
                     :class="user.is_active
-                      ? 'bg-danger/15 text-danger hover:bg-danger/25'
-                      : 'bg-success/15 text-success hover:bg-success/25'"
+                      ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 hover:bg-rose-100'
+                      : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 hover:bg-emerald-100'"
                   >
                     {{ user.is_active ? 'Deactivate' : 'Activate' }}
                   </button>
                   <NuxtLink
                     :to="`/users/${user.id}`"
-                    class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 text-xs font-medium hover:bg-white/10 transition-colors"
+                    class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 transition-colors"
                   >
                     View
                   </NuxtLink>
@@ -102,14 +180,14 @@
         </table>
       </div>
 
-      <div v-if="!users.length" class="p-10 text-center text-slate-500">No users found.</div>
+      <div v-if="!users.length" class="p-10 text-center text-slate-400 text-xs">No users found.</div>
 
       <!-- Pagination -->
-      <div v-if="meta.last_page > 1" class="flex items-center justify-between px-5 py-4 border-t border-white/5">
-        <p class="text-xs text-slate-400">Page {{ meta.current_page }} of {{ meta.last_page }}</p>
+      <div v-if="meta.last_page > 1" class="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+        <p class="text-xs text-slate-500">Page {{ meta.current_page }} of {{ meta.last_page }}</p>
         <div class="flex gap-2">
-          <button @click="page--; loadUsers()" :disabled="page <= 1" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 text-xs disabled:opacity-30 hover:bg-white/10">← Prev</button>
-          <button @click="page++; loadUsers()" :disabled="page >= meta.last_page" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 text-xs disabled:opacity-30 hover:bg-white/10">Next →</button>
+          <button @click="page--; loadUsers()" :disabled="page <= 1" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium disabled:opacity-40 hover:bg-slate-100">← Prev</button>
+          <button @click="page++; loadUsers()" :disabled="page >= meta.last_page" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium disabled:opacity-40 hover:bg-slate-100">Next →</button>
         </div>
       </div>
     </div>
@@ -122,12 +200,20 @@ definePageMeta({ middleware: "auth" });
 const api = useApi();
 const toast = useToast();
 
+const showAdvanceFilters = ref(false);
 const users = ref<any[]>([]);
 const meta = ref<any>({});
 const search = ref("");
 const roleFilter = ref("");
 const statusFilterVal = ref("");
 const page = ref(1);
+
+const clearFilters = () => {
+  search.value = "";
+  roleFilter.value = "";
+  statusFilterVal.value = "";
+  loadUsers();
+};
 
 const loadUsers = async () => {
   try {

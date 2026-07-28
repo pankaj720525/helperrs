@@ -1,9 +1,10 @@
 /**
  * Theme composable — toggles dark/light mode.
+ * Default is Light (White) mode.
  * Persists preference in localStorage and applies class to <html>.
  */
 export const useTheme = () => {
-  const isDark = useState<boolean>('theme-dark', () => true);
+  const isDark = useState<boolean>('theme-dark', () => false);
 
   const applyTheme = (dark: boolean) => {
     if (import.meta.server) return;
@@ -21,8 +22,8 @@ export const useTheme = () => {
   const initTheme = () => {
     if (import.meta.server) return;
     const saved = localStorage.getItem('theme');
-    // Default: dark mode
-    const dark = saved ? saved === 'dark' : true;
+    // Default: light mode
+    const dark = saved ? saved === 'dark' : false;
     isDark.value = dark;
     applyTheme(dark);
   };

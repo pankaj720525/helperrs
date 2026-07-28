@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
+/* Force Tailwind CSS v4 to use class-based dark mode (.dark / .admin-dark) instead of OS media query */
+@variant dark (&:where(.dark, .dark *, .admin-dark, .admin-dark *));
+
 /* ─── Custom Design Tokens ──────────────────────────────── */
 @theme {
-  --color-primary: #B20537;
-  --color-primary-light: #D4064A;
-  --color-primary-dark: #8A042B;
-  --color-primary-50: #FEF2F5;
-  --color-primary-100: #FDE6EB;
-  --color-primary-200: #FBC0D0;
-  --color-primary-300: #F88AA8;
-  --color-primary-400: #F24D7A;
-  --color-primary-500: #D4064A;
-  --color-primary-600: #B20537;
-  --color-primary-700: #8A042B;
-  --color-primary-800: #6B031F;
-  --color-primary-900: #4D0216;
+  --color-primary: #3858F9;
+  --color-primary-light: #4F46E5;
+  --color-primary-dark: #2B42C1;
+  --color-primary-50: #EEF2FF;
+  --color-primary-100: #E0E7FF;
+  --color-primary-200: #C7D2FE;
+  --color-primary-300: #A5B4FC;
+  --color-primary-400: #818CF8;
+  --color-primary-500: #3858F9;
+  --color-primary-600: #2B42C1;
+  --color-primary-700: #1D2D8F;
 
-  --color-surface: #0F172A;
-  --color-surface-light: #1E293B;
-  --color-surface-lighter: #334155;
-  --color-surface-border: #475569;
+  --color-surface: #F2F4F9;
+  --color-surface-light: #FFFFFF;
+  --color-surface-border: #E9EDF4;
 
   --color-accent: #F59E0B;
   --color-success: #10B981;
@@ -36,39 +36,39 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
 
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 20px rgba(178, 5, 55, 0.3);
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-glass: 0 2px 10px rgba(37, 51, 66, 0.05);
+  --shadow-glow: 0 0 20px rgba(56, 88, 249, 0.25);
+  --shadow-card: 0 2px 6px rgba(37, 51, 66, 0.04);
+  --shadow-card-hover: 0 6px 18px rgba(37, 51, 66, 0.08);
 }
 
 /* ─── Custom Utilities ──────────────────────────────────── */
 @utility glass {
-  background: rgba(30, 41, 59, 0.65);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #E9EDF4;
+  box-shadow: 0 2px 6px rgba(37, 51, 66, 0.04);
 }
 
 @utility glass-light {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid #E9EDF4;
 }
 
 @utility gradient-primary {
-  background: linear-gradient(135deg, #B20537, #D4064A, #F43F5E);
+  background: linear-gradient(135deg, #3858F9, #4F46E5);
 }
 
 @utility gradient-dark {
-  background: linear-gradient(180deg, #0F172A, #1E293B);
+  background: #F2F4F9;
 }
 
 @utility gradient-sidebar {
-  background: linear-gradient(180deg, #0B1120 0%, #111827 50%, #0F172A 100%);
+  background: #FFFFFF;
 }
 
 @utility text-gradient {
-  background: linear-gradient(135deg, #B20537, #F43F5E);
+  background: linear-gradient(135deg, #3858F9, #4F46E5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -92,7 +92,7 @@
 
 @utility scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-surface-lighter) transparent;
+  scrollbar-color: #CBD5E1 transparent;
 }
 
 /* ─── Keyframes ─────────────────────────────────────────── */
@@ -102,26 +102,21 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-16px); }
+  from { opacity: 0; transform: translateX(-14px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(178, 5, 55, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(178, 5, 55, 0); }
-}
-
-/* ─── Base Styles ───────────────────────────────────────── */
+/* ─── Base Styles (Valex Light Mode Default) ───────────── */
 *,
 *::before,
 *::after {
@@ -136,171 +131,148 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface);
-  color: #E2E8F0;
+  background-color: #F2F4F9;
+  color: #1E293B;
   line-height: 1.6;
 }
 
-/* Custom scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--color-surface-lighter);
+  background: #CBD5E1;
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-surface-border);
+  background: #94A3B8;
 }
 
-/* ─── Theme Transitions ──────────────────────────────── */
+/* Theme transition */
 *, *::before, *::after {
   transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 200ms;
+  transition-duration: 150ms;
   transition-timing-function: ease;
 }
 
+/* ── Default Light Mode Elements ────────────────────────── */
+header {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E9EDF4;
+}
+
+aside {
+  background-color: #FFFFFF;
+  border-right: 1px solid #E9EDF4;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #1E293B;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94A3B8;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #3858F9;
+  box-shadow: 0 0 0 2px rgba(56, 88, 249, 0.15);
+  outline: none;
+}
+
+/* Tables (Default Light Mode) */
+table thead tr {
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E9EDF4;
+}
+table thead th {
+  color: #64748B;
+}
+table tbody tr {
+  border-bottom: 1px solid #F1F5F9;
+}
+table tbody tr:hover {
+  background-color: #F8FAFC;
+}
+
 /* ========================================================
-   ADMIN LIGHT MODE — Complete Override
-   Targets: body, layout wrapper, sidebar, header, glass,
-             cards, text, tables, inputs, borders
+   DARK MODE OVERRIDES (html.dark or html.admin-dark)
    ======================================================== */
-
-/* ── 1. Body & Root Background ───────────────────────── */
-html.admin-light body {
-  background-color: #F1F5F9 !important;
-  color: #0F172A !important;
+html.dark body,
+html.admin-dark body {
+  background-color: #0F172A;
+  color: #F8FAFC;
 }
 
-/* ── 2. Layout wrapper (gradient-dark) ───────────────── */
-html.admin-light .min-h-screen {
-  background: #F1F5F9 !important;
+html.dark .min-h-screen,
+html.admin-dark .min-h-screen {
+  background-color: #0F172A;
 }
 
-/* ── 3. Sidebar (gradient-sidebar) ───────────────────── */
-html.admin-light aside {
-  background: #FFFFFF !important;
-  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+html.dark aside,
+html.admin-dark aside {
+  background-color: #111827;
+  border-right: 1px solid #1F2937;
 }
 
-/* Sidebar section divider */
-html.admin-light aside .border-t {
-  border-color: rgba(0, 0, 0, 0.07) !important;
+html.dark header,
+html.admin-dark header {
+  background-color: rgba(17, 24, 39, 0.95);
+  border-bottom: 1px solid #1F2937;
+  backdrop-filter: blur(12px);
 }
 
-/* Sidebar System label */
-html.admin-light aside .text-slate-500 {
-  color: #94A3B8 !important;
+html.dark .glass,
+html.admin-dark .glass {
+  background-color: #1E293B;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Sidebar nav links - inactive */
-html.admin-light aside a.text-slate-400 {
-  color: #64748B !important;
-}
-html.admin-light aside a:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #0F172A !important;
-}
-
-/* Sidebar collapse button */
-html.admin-light aside button {
-  color: #64748B !important;
-}
-html.admin-light aside button:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #0F172A !important;
+/* ========================================================
+   AUTH LAYOUT & LOGIN PAGE (STRICT LIGHT MODE ALWAYS)
+   ======================================================== */
+.auth-page-layout {
+  background-color: #F2F4F9 !important;
+  color: #1E293B !important;
 }
 
-/* Sidebar logo text */
-html.admin-light aside span.font-heading,
-html.admin-light aside span.text-white {
-  color: #0F172A !important;
+.auth-page-layout .glass,
+.auth-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E9EDF4 !important;
+  box-shadow: 0 10px 30px rgba(37, 51, 66, 0.08) !important;
 }
 
-/* ── 4. Header (glass) ───────────────────────────────── */
-html.admin-light header {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07) !important;
-  backdrop-filter: blur(16px) !important;
-}
-
-/* ── 5. Glass Cards & Containers ─────────────────────── */
-html.admin-light .glass {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-/* ── 6. Text Colors ──────────────────────────────────── */
-html.admin-light .text-white   { color: #0F172A !important; }
-html.admin-light .text-slate-200 { color: #1E293B !important; }
-html.admin-light .text-slate-300 { color: #334155 !important; }
-html.admin-light .text-slate-400 { color: #475569 !important; }
-html.admin-light .text-slate-500 { color: #64748B !important; }
-
-/* Keep brand/status colors */
-html.admin-light .text-success  { color: #059669 !important; }
-html.admin-light .text-danger   { color: #DC2626 !important; }
-html.admin-light .text-warning  { color: #D97706 !important; }
-html.admin-light .text-info     { color: #2563EB !important; }
-html.admin-light .text-primary-light { color: #B20537 !important; }
-
-/* ── 7. Backgrounds ──────────────────────────────────── */
-html.admin-light .bg-white\/3,
-html.admin-light .bg-white\/5,
-html.admin-light .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.035) !important;
-}
-
-/* ── 8. Borders ──────────────────────────────────────── */
-html.admin-light .border-white\/5,
-html.admin-light .border-white\/10 {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* ── 9. Inputs, Textareas, Selects ──────────────────── */
-html.admin-light input:not([type="checkbox"]):not([type="radio"]),
-html.admin-light textarea,
-html.admin-light select {
+.auth-page-layout input {
   background-color: #F8FAFC !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  color: #0F172A !important;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05) !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #1E293B !important;
 }
 
-html.admin-light input::placeholder,
-html.admin-light textarea::placeholder {
+.auth-page-layout input::placeholder {
   color: #94A3B8 !important;
 }
 
-html.admin-light input:focus,
-html.admin-light textarea:focus,
-html.admin-light select:focus {
-  border-color: #B20537 !important;
-  outline: none !important;
+.auth-page-layout .text-white {
+  color: #1E293B !important;
 }
 
-/* ── 10. Tables ──────────────────────────────────────── */
-html.admin-light table thead tr {
-  background-color: rgba(0, 0, 0, 0.025) !important;
+.auth-page-layout .text-slate-300 {
+  color: #475569 !important;
 }
 
-html.admin-light table tbody tr {
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-html.admin-light table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.025) !important;
-}
-
-/* ── 11. Scrollbar ───────────────────────────────────── */
-html.admin-light ::-webkit-scrollbar-thumb {
-  background: #CBD5E1 !important;
+.auth-page-layout .text-slate-400 {
+  color: #64748B !important;
 }
