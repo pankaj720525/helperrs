@@ -30,8 +30,8 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs">
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
-                <p class="text-[11px] text-slate-400 mb-0.5">Joined</p>
-                <p class="font-bold text-slate-900 dark:text-white">{{ user.created_at?.split('T')[0] }}</p>
+                <p class="text-[11px] text-slate-400 mb-0.5">Joined Date & Time</p>
+                <p class="font-bold text-slate-900 dark:text-white text-[11px]">{{ formatDate(user.created_at) }}</p>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-0.5">Services</p>
@@ -94,7 +94,7 @@
             class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div>
               <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ s.title }}</p>
-              <p class="text-[11px] text-slate-400">{{ s.category?.name }} · {{ s.created_at?.split('T')[0] }}</p>
+              <p class="text-[11px] text-slate-400">{{ s.category?.name }} · {{ formatDate(s.created_at) }}</p>
             </div>
             <div class="flex items-center gap-2">
               <UiStatusBadge :status="s.status" />

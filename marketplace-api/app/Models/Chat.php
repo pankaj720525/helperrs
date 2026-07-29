@@ -15,8 +15,16 @@ class Chat extends Model
         'user_id',
         'worker_id',
         'service_id',
+        'is_support',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_support' => 'boolean',
+        ];
+    }
 
     // ─── Relationships ────────────────────────────────────────
 

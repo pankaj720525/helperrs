@@ -4,95 +4,49 @@
     <UiPageHeader
       title="Provider Subscriptions"
       description="Monitor worker membership plans, trial status, and manual plan extensions."
-    >
-      <template #actions>
-        <button
-          @click="showAdvanceFilters = !showAdvanceFilters"
-          class="px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all shadow-xs"
-          :class="showAdvanceFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50'"
-        >
-          <span>⚡</span> {{ showAdvanceFilters ? 'Hide Advanced Filters' : 'Advanced Filters' }}
-        </button>
-      </template>
-    </UiPageHeader>
+    />
 
-    <!-- Advanced Filter Bar -->
-    <div
-      v-if="showAdvanceFilters"
-      class="bg-white dark:bg-[#1E293B] rounded-2xl p-5 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-down space-y-4"
-    >
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-        <h3 class="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-          Advanced Subscription Filters
-        </h3>
-        <button @click="clearFilters" class="text-xs text-rose-500 hover:underline font-medium">Reset All</button>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Search User</label>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Name or email..."
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
-          />
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Plan Type</label>
-          <select
-            v-model="planFilter"
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-          >
-            <option value="">All Plans</option>
-            <option value="trial">Trial Period</option>
-            <option value="monthly">Monthly Plan</option>
-            <option value="yearly">Yearly Plan</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Subscription Status</label>
-          <select
-            v-model="statusFilter"
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-          >
-            <option value="">All Statuses</option>
-            <option value="active">Active Only</option>
-            <option value="expired">Expired Only</option>
-          </select>
-        </div>
-
-        <div class="flex items-end">
-          <button
-            @click="loadSubs"
-            class="w-full py-2 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-xs"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Toolbar -->
-    <div v-else class="bg-white dark:bg-[#1E293B] rounded-2xl p-4 border border-[#EAEDF1] dark:border-[#334155] shadow-sm flex flex-wrap items-center gap-3">
-      <input v-model="search" type="text" placeholder="Search by user name or email..." @keyup.enter="loadSubs"
-        class="flex-1 min-w-[200px] px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary text-xs" />
-      <select v-model="statusFilter" @change="loadSubs"
-        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs">
-        <option value="">All Status</option>
-        <option value="active">Active</option>
-        <option value="expired">Expired</option>
+    <!-- Filter Toolbar (All Filters Inline) -->
+    <div class="bg-white dark:bg-[#121e2d] rounded-xl p-4 border border-[#edf2f9] dark:border-[#1e2c40] shadow-xs flex flex-wrap items-center gap-3">
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Search by user name or email..."
+        @keyup.enter="loadSubs"
+        class="flex-1 min-w-[200px] px-4 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-100 placeholder:text-[#9da9bb] focus:outline-none focus:border-[#2c7be5] text-xs"
+      />
+      <select
+        v-model="statusFilter"
+        @change="loadSubs"
+        class="px-3.5 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-200 focus:outline-none focus:border-[#2c7be5] text-xs font-medium"
+      >
+        <option value="">All Statuses</option>
+        <option value="active">Active Only</option>
+        <option value="expired">Expired Only</option>
       </select>
-      <select v-model="planFilter" @change="loadSubs"
-        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs">
+      <select
+        v-model="planFilter"
+        @change="loadSubs"
+        class="px-3.5 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-200 focus:outline-none focus:border-[#2c7be5] text-xs font-medium"
+      >
         <option value="">All Plans</option>
-        <option value="trial">Trial</option>
-        <option value="monthly">Monthly</option>
-        <option value="yearly">Yearly</option>
+        <option value="trial">Trial Period</option>
+        <option value="monthly">Monthly Plan</option>
+        <option value="yearly">Yearly Plan</option>
       </select>
-      <button @click="loadSubs" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">Search</button>
+      <button
+        @click="loadSubs"
+        class="px-5 py-2 rounded-lg bg-[#2c7be5] text-white text-xs font-bold hover:bg-[#1665d8] transition-colors shadow-xs"
+      >
+        Search
+      </button>
+      <button
+        v-if="search || statusFilter || planFilter"
+        @click="clearFilters"
+        class="px-3 py-2 rounded-lg text-xs font-semibold text-[#e63757] hover:bg-[#ffebe6] dark:hover:bg-[#e63757]/20 transition-colors"
+      >
+        Reset
+      </button>
     </div>
 
     <!-- Data Table -->

@@ -69,6 +69,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'address'      => ['nullable', 'string', 'max:500'],
+            'city'         => ['nullable', 'string', 'max:100'],
             'bio'          => ['nullable', 'string', 'max:2000'],
             'phone_public' => ['nullable', 'string', 'max:20'],
             'email_public' => ['nullable', 'string', 'email', 'max:255'],
@@ -93,6 +94,7 @@ class ProfileController extends Controller
             ['user_id' => $user->id],
             [
                 'address'      => $validated['address'] ?? null,
+                'city'         => $validated['city'] ?? null,
                 'bio'          => $validated['bio'] ?? null,
                 'phone_public' => $validated['phone_public'] ?? null,
                 'email_public' => $validated['email_public'] ?? null,

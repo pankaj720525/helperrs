@@ -13,6 +13,7 @@ class WorkerProfileResource extends JsonResource
             'id'            => $this->hash_id,
             'user_id'       => $this->user?->hash_id,
             'address'       => $this->address,
+            'city'          => $this->city,
             'bio'           => $this->bio,
             'phone_public'  => $this->when($request->user(), $this->phone_public),
             'email_public'  => $this->when($request->user(), $this->email_public),

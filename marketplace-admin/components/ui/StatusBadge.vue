@@ -25,17 +25,20 @@ const badgeClass = computed(() => {
     case "approved":
     case "active":
     case "open":
-      return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+      return "bg-[#e6f9f0] text-[#00a661] dark:bg-[#00d27a]/20 dark:text-[#00d27a]";
     case "pending":
     case "trial":
-      return "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800";
+      return "bg-[#fff3eb] text-[#d96b27] dark:bg-[#f5803e]/20 dark:text-[#f5803e]";
     case "rejected":
     case "inactive":
     case "expired":
     case "closed":
-      return "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200 dark:border-rose-800";
+      return "bg-[#ffebe6] text-[#e63757] dark:bg-[#e63757]/20 dark:text-[#e63757]";
+    case "pro":
+    case "admin":
+      return "bg-[#edf5ff] text-[#2c7be5] dark:bg-[#2c7be5]/20 dark:text-[#558bd7]";
     default:
-      return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700";
+      return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";
   }
 });
 

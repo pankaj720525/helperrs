@@ -184,9 +184,14 @@
             <p class="text-xs text-slate-500">Contact our 24/7 customer helpline at <strong>1800-123-4567</strong></p>
           </div>
         </div>
-        <NuxtLink to="/chats" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 text-white text-xs font-bold whitespace-nowrap shadow-sm" style="color: #ffffff !important;">
-          Live Chat Support
-        </NuxtLink>
+        <button
+          @click="startSupportChat"
+          :disabled="startingSupport"
+          class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 text-white text-xs font-bold whitespace-nowrap shadow-sm hover:shadow-md transition-all cursor-pointer disabled:opacity-50"
+          style="color: #ffffff !important;"
+        >
+          {{ startingSupport ? 'Connecting...' : 'Live Chat Support' }}
+        </button>
       </div>
 
     </div>
@@ -204,6 +209,23 @@ const { currentLocation } = useUserLocation();
 const user = ref<any>(null);
 const subscription = ref<any>(null);
 const loading = ref(true);
+const startingSupport = ref(false);
+
+const startSupportChat = async () => {
+  startingSupport.value = true;
+  try {
+    const data = await api.post<any>("/chats/support");
+    if (data.chat?.id) {
+      navigateTo(`/chats/${data.chat.id}`);
+    } else {
+      navigateTo("/chats");
+    }
+  } catch {
+    navigateTo("/chats");
+  } finally {
+    startingSupport.value = false;
+  }
+};
 
 onMounted(async () => {
   userStore.loadFromStorage();

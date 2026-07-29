@@ -98,7 +98,7 @@
 
             <p class="text-slate-600 dark:text-slate-300 text-xs mb-4 leading-relaxed">{{ service.description || 'No description.' }}</p>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-0.5">Price Range</p>
                 <p class="font-bold text-slate-900 dark:text-white">
@@ -106,18 +106,24 @@
                 </p>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
+                <p class="text-[11px] text-slate-400 mb-0.5">City / Location</p>
+                <p class="font-bold text-[#2c7be5] truncate">
+                  📍 {{ service.city || service.user?.worker_profile?.address || 'Mumbai' }}
+                </p>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-0.5">Rating</p>
-                <p class="font-bold text-slate-900 dark:text-white">
-                  ⭐ {{ service.reviews_avg ? Number(service.reviews_avg).toFixed(1) : '—' }}
+                <p class="font-bold text-[#f5803e]">
+                  ⭐ {{ service.reviews_avg ? Number(service.reviews_avg).toFixed(1) : '0.0' }}
                 </p>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-0.5">Reviews</p>
-                <p class="font-bold text-slate-900 dark:text-white">{{ service.reviews_count || 0 }}</p>
+                <p class="font-bold text-slate-900 dark:text-white">{{ service.reviews_count || service.reviews?.length || 0 }}</p>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
-                <p class="text-[11px] text-slate-400 mb-0.5">Created</p>
-                <p class="font-bold text-slate-900 dark:text-white">{{ service.created_at?.split('T')[0] }}</p>
+                <p class="text-[11px] text-slate-400 mb-0.5">Created Date & Time</p>
+                <p class="font-bold text-slate-900 dark:text-white text-[11px]">🕒 {{ formatDate(service.created_at) }}</p>
               </div>
             </div>
           </div>
@@ -148,18 +154,27 @@
         </div>
       </div>
 
-      <!-- Worker Info Card -->
+      <!-- Worker Info Card (Full Details) -->
       <div class="bg-white dark:bg-[#1E293B] rounded-xl p-6 border border-[#EAEDF1] dark:border-[#334155] shadow-sm">
-        <h2 class="text-base font-heading font-bold text-slate-900 dark:text-white mb-4">Worker Information</h2>
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-lg shadow-xs">
+        <h2 class="text-base font-heading font-bold text-slate-900 dark:text-white mb-4">Worker Profile Details</h2>
+        <div class="flex items-start gap-4 flex-wrap sm:flex-nowrap">
+          <div class="w-14 h-14 rounded-full bg-[#2c7be5] flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-xs">
             {{ service.user?.name?.charAt(0) }}
           </div>
-          <div>
-            <p class="font-bold text-slate-900 dark:text-white text-sm">{{ service.user?.name }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400">{{ service.user?.email }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {{ service.user?.worker_profile?.bio || 'No bio available' }}
+          <div class="space-y-2 flex-1">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <p class="font-bold text-slate-900 dark:text-white text-sm">{{ service.user?.name }}</p>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" :class="service.user?.worker_profile?.is_available !== false ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'">
+                {{ service.user?.worker_profile?.is_available !== false ? '● Available for Hiring' : '○ Currently Unavailable' }}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400">
+              <span v-if="service.user?.email">📧 {{ service.user?.email }}</span>
+              <span v-if="service.user?.phone || service.user?.worker_profile?.phone_public">📞 {{ service.user?.phone || service.user?.worker_profile?.phone_public }}</span>
+              <span>📍 <strong class="text-slate-800 dark:text-slate-200">{{ service.user?.worker_profile?.city || service.city }}</strong> <span v-if="service.user?.worker_profile?.address">({{ service.user?.worker_profile?.address }})</span></span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+              {{ service.user?.worker_profile?.bio || 'No bio available for this provider profile.' }}
             </p>
           </div>
         </div>
@@ -187,7 +202,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-amber-500 text-xs font-bold">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
-                <span class="text-[11px] text-slate-400">{{ review.created_at?.split('T')[0] }}</span>
+                <span class="text-[11px] text-slate-400">🕒 {{ formatDate(review.created_at) }}</span>
               </div>
             </div>
             <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ review.comment || 'No comment.' }}</p>

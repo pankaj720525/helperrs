@@ -4,98 +4,84 @@
     <UiPageHeader
       title="Services Catalog"
       description="Manage, review, and approve worker service listings across all categories."
-    >
-      <template #actions>
-        <button
-          @click="showAdvanceFilters = !showAdvanceFilters"
-          class="px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all shadow-xs"
-          :class="showAdvanceFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50'"
-        >
-          <span>⚡</span> {{ showAdvanceFilters ? 'Hide Advanced Filters' : 'Advanced Filters' }}
-        </button>
-      </template>
-    </UiPageHeader>
+    />
 
-    <!-- Advanced Filter Bar (Collapsible Valex Filter Panel) -->
-    <div
-      v-if="showAdvanceFilters"
-      class="bg-white dark:bg-[#1E293B] rounded-2xl p-5 border border-[#EAEDF1] dark:border-[#334155] shadow-sm animate-fade-down space-y-4"
-    >
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-        <h3 class="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-          Filter Search Options
-        </h3>
-        <button @click="clearFilters" class="text-xs text-rose-500 hover:underline font-medium">Reset All</button>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Search Keyword</label>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Title, worker, email..."
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
-          />
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Moderation Status</label>
-          <select
-            v-model="statusFilter"
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-          >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Sort By</label>
-          <select
-            v-model="sortBy"
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="title">Title (A-Z)</option>
-          </select>
-        </div>
-
-        <div class="flex items-end">
-          <button
-            @click="loadServices"
-            class="w-full py-2 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-xs"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Search Toolbar (Always visible) -->
-    <div v-else class="bg-white dark:bg-[#1E293B] rounded-2xl p-4 border border-[#EAEDF1] dark:border-[#334155] shadow-sm flex flex-wrap items-center gap-3">
+    <!-- Filter Toolbar (Inline with Category & Price Filters) -->
+    <div class="bg-white dark:bg-[#121e2d] rounded-xl p-4 border border-[#edf2f9] dark:border-[#1e2c40] shadow-xs flex flex-wrap items-center gap-3">
       <input
         v-model="search"
         type="text"
-        placeholder="Search services by title or provider..."
+        placeholder="Search title or provider..."
         @keyup.enter="loadServices"
-        class="flex-1 min-w-[220px] px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary text-xs"
+        class="flex-1 min-w-[180px] px-3.5 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-100 placeholder:text-[#9da9bb] focus:outline-none focus:border-[#2c7be5] text-xs"
       />
+
+      <!-- Category Filter Dropdown -->
+      <select
+        v-model="categoryFilter"
+        @change="loadServices"
+        class="px-3 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-200 focus:outline-none focus:border-[#2c7be5] text-xs font-medium"
+      >
+        <option value="">All Categories</option>
+        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+          {{ cat.name }}
+        </option>
+      </select>
+
+      <!-- Status Filter Dropdown -->
       <select
         v-model="statusFilter"
         @change="loadServices"
-        class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary text-xs"
+        class="px-3 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-200 focus:outline-none focus:border-[#2c7be5] text-xs font-medium"
       >
         <option value="">All Statuses</option>
         <option value="pending">Pending</option>
         <option value="approved">Approved</option>
         <option value="rejected">Rejected</option>
       </select>
-      <button @click="loadServices" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all shadow-xs">
+
+      <!-- Min Price Filter Input -->
+      <input
+        v-model="minPrice"
+        type="number"
+        placeholder="Min Price (₹)"
+        @keyup.enter="loadServices"
+        class="w-28 px-3 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-100 placeholder:text-[#9da9bb] focus:outline-none focus:border-[#2c7be5] text-xs"
+      />
+
+      <!-- Max Price Filter Input -->
+      <input
+        v-model="maxPrice"
+        type="number"
+        placeholder="Max Price (₹)"
+        @keyup.enter="loadServices"
+        class="w-28 px-3 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-100 placeholder:text-[#9da9bb] focus:outline-none focus:border-[#2c7be5] text-xs"
+      />
+
+      <!-- Sort By Dropdown -->
+      <select
+        v-model="sortBy"
+        @change="loadServices"
+        class="px-3 py-2 rounded-lg bg-slate-50/80 dark:bg-[#0b1727] border border-[#d8e2ef] dark:border-[#1e2c40] text-[#12263f] dark:text-slate-200 focus:outline-none focus:border-[#2c7be5] text-xs font-medium"
+      >
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="title">Title (A-Z)</option>
+      </select>
+
+      <button
+        @click="loadServices"
+        class="px-4 py-2 rounded-lg bg-[#2c7be5] text-white text-xs font-bold hover:bg-[#1665d8] transition-colors shadow-xs"
+      >
         Search
+      </button>
+
+      <button
+        v-if="search || categoryFilter || statusFilter || minPrice || maxPrice || sortBy !== 'newest'"
+        @click="clearFilters"
+        class="px-3 py-2 rounded-lg text-xs font-semibold text-[#e63757] hover:bg-[#ffebe6] dark:hover:bg-[#e63757]/20 transition-colors"
+      >
+        Reset
       </button>
     </div>
 
@@ -108,7 +94,9 @@
               <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Service</th>
               <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Worker</th>
               <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">City</th>
               <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Price Range</th>
+              <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rating</th>
               <th class="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
               <th class="text-right px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
@@ -122,7 +110,7 @@
               <td class="px-5 py-3.5">
                 <p class="font-semibold text-slate-900 dark:text-slate-100">{{ service.title }}</p>
                 <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                  <p class="text-[11px] text-slate-400">{{ service.created_at?.split('T')[0] }}</p>
+                  <p class="text-[11px] text-slate-400 font-medium">🕒 {{ formatDate(service.created_at) }}</p>
                   <span v-if="service.parent_id" class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 text-[9px] font-extrabold uppercase">
                     Update Request
                   </span>
@@ -130,11 +118,23 @@
               </td>
               <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-medium">{{ service.user?.name || '-' }}</td>
               <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-medium">{{ service.category?.name || '-' }}</td>
+              <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-medium">
+                <span class="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px] text-slate-700 dark:text-slate-300">
+                  📍 {{ service.city || service.user?.worker_profile?.address || 'Mumbai' }}
+                </span>
+              </td>
               <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300">
                 <span v-if="service.price_min || service.price_max" class="font-medium">
                   ₹{{ service.price_min || 0 }} – ₹{{ service.price_max || 0 }}
                 </span>
                 <span v-else class="text-slate-400">Not set</span>
+              </td>
+              <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300">
+                <div class="flex items-center gap-1 text-xs font-bold text-[#f5803e]">
+                  <span>⭐</span>
+                  <span>{{ service.reviews_avg ? Number(service.reviews_avg).toFixed(1) : '0.0' }}</span>
+                  <span class="text-[10px] text-slate-400 font-normal">({{ service.reviews_count || 0 }})</span>
+                </div>
               </td>
               <td class="px-5 py-3.5">
                 <UiStatusBadge :status="service.status" />
@@ -237,12 +237,14 @@ const route = useRoute();
 const api = useApi();
 const toast = useToast();
 
-const showAdvanceFilters = ref(false);
-
 const services = ref<any[]>([]);
+const categories = ref<any[]>([]);
 const meta = ref<any>({});
 const search = ref((route.query.search as string) || "");
+const categoryFilter = ref("");
 const statusFilter = ref((route.query.status as string) || "");
+const minPrice = ref("");
+const maxPrice = ref("");
 const sortBy = ref("newest");
 const page = ref(1);
 
@@ -252,16 +254,29 @@ const rejectionReason = ref("");
 
 const clearFilters = () => {
   search.value = "";
+  categoryFilter.value = "";
   statusFilter.value = "";
+  minPrice.value = "";
+  maxPrice.value = "";
   sortBy.value = "newest";
   loadServices();
+};
+
+const loadCategories = async () => {
+  try {
+    const data = await api.get<any>("/admin/categories");
+    categories.value = data.categories || data || [];
+  } catch (e) {}
 };
 
 const loadServices = async () => {
   try {
     const params: any = { page: page.value, per_page: 15 };
     if (search.value) params.search = search.value;
+    if (categoryFilter.value) params.category_id = categoryFilter.value;
     if (statusFilter.value) params.status = statusFilter.value;
+    if (minPrice.value) params.min_price = minPrice.value;
+    if (maxPrice.value) params.max_price = maxPrice.value;
     if (sortBy.value) params.sort = sortBy.value;
 
     const data = await api.get<any>("/admin/services", params);
@@ -314,5 +329,8 @@ const rejectService = async () => {
   }
 };
 
-onMounted(loadServices);
+onMounted(() => {
+  loadCategories();
+  loadServices();
+});
 </script>

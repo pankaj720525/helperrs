@@ -17,11 +17,13 @@ class ServiceApprovalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $services = Service::with(['user', 'category', 'parent'])
+        $services = Service::with(['user.workerProfile', 'category', 'parent'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->when($request->category_id, fn($q, $catId) => $q->where('category_id', $catId))
+            ->when($request->min_price, fn($q, $min) => $q->where('price_min', '>=', $min))
+            ->when($request->max_price, fn($q, $max) => $q->where('price_max', '<=', $max))
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")

@@ -71,8 +71,10 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureActiveUser::class,
     // Chat
     Route::get('/chats', [ChatController::class, 'index']);
     Route::post('/chats', [ChatController::class, 'store']);
+    Route::post('/chats/support', [ChatController::class, 'storeSupport']);
     Route::get('/chats/{id}/messages', [ChatController::class, 'messages']);
     Route::post('/chats/{id}/messages', [ChatController::class, 'sendMessage']);
+    Route::put('/chats/{id}/close', [ChatController::class, 'closeChat']);
 
     // Reviews
     Route::post('/reviews', [ReviewController::class, 'store']);
@@ -143,5 +145,11 @@ Route::prefix('admin')->group(function () {
 
         // Audit Logs
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
+
+        // Support Chat Management
+        Route::get('/chats', [\App\Http\Controllers\Admin\SupportChatController::class, 'index']);
+        Route::get('/chats/{id}/messages', [\App\Http\Controllers\Admin\SupportChatController::class, 'messages']);
+        Route::post('/chats/{id}/messages', [\App\Http\Controllers\Admin\SupportChatController::class, 'sendMessage']);
+        Route::put('/chats/{id}/close', [\App\Http\Controllers\Admin\SupportChatController::class, 'closeChat']);
     });
 });

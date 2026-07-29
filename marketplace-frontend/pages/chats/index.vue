@@ -52,7 +52,15 @@
         <!-- Avatar Circle with Active Indicator -->
         <div class="relative flex-shrink-0">
           <div
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full gradient-primary flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+            v-if="chat.is_support"
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-rose-600 to-rose-700 flex items-center justify-center text-white text-xl shadow-sm"
+          >
+            🎧
+          </div>
+          <div
+            v-else
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full gradient-primary flex items-center justify-center text-white font-extrabold text-lg shadow-sm"
+          >
             {{ otherParty(chat)?.charAt(0)?.toUpperCase() || 'U' }}
           </div>
           <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white absolute bottom-0 right-0" />
@@ -68,8 +76,11 @@
           </div>
 
           <div class="flex items-center gap-2 mb-1">
-            <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold truncate">
-              {{ chat.service?.title || 'Service Chat' }}
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold truncate"
+              :class="chat.is_support ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-700'"
+            >
+              {{ chat.is_support ? 'Support Chat' : (chat.service?.title || 'Service Chat') }}
             </span>
           </div>
 
@@ -126,6 +137,7 @@ const searchQuery = ref('');
 const loading = ref(true);
 
 const otherParty = (chat: any) => {
+  if (chat.is_support) return 'Support Chat';
   if (!userStore.user) return '';
   return chat.user?.id === userStore.user.id ? chat.worker?.name : chat.user?.name;
 };

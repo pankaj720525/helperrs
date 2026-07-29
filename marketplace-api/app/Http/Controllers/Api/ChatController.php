@@ -78,11 +78,15 @@ class ChatController extends Controller
 
         // Notify worker of new inquiry only if chat was just created
         if ($chat->wasRecentlyCreated) {
-            broadcast(new NewInquiry(
-                $chat->load(['user', 'service']),
-                $service->user_id,
-                $service->title,
-            ));
+            try {
+                broadcast(new NewInquiry(
+                    $chat->load(['user', 'service']),
+                    $service->user_id,
+                    $service->title,
+                ));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcasting inquiry failed: ' . $e->getMessage());
+            }
         }
 
         return response()->json([
@@ -124,6 +128,64 @@ class ChatController extends Controller
     }
 
     /**
+     * Start or open a live support chat with Admin support.
+     */
+    public function storeSupport(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'message' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        // Find open support chat or create a new one
+        $chat = Chat::where('user_id', $user->id)
+            ->where('is_support', true)
+            ->where('status', 'open')
+            ->first();
+
+        if (!$chat) {
+            $chat = Chat::create([
+                'user_id'    => $user->id,
+                'worker_id'  => null,
+                'service_id' => null,
+                'is_support' => true,
+                'status'     => 'open',
+            ]);
+        }
+
+        // Create initial message if provided
+        if (!empty($validated['message'])) {
+            $chat->messages()->create([
+                'sender_id' => $user->id,
+                'message'   => $validated['message'],
+            ]);
+            $chat->touch();
+        }
+
+        return response()->json([
+            'message' => 'Support chat connected successfully.',
+            'chat'    => new ChatResource($chat->load(['user', 'service', 'latestMessage'])),
+        ], 200);
+    }
+
+    /**
+     * Close/resolve a chat (User side).
+     */
+    public function closeChat(Request $request, $id): JsonResponse
+    {
+        $user = $request->user();
+        $chat = Chat::forUser($user->id)->findOrFail($id);
+
+        $chat->update(['status' => 'closed']);
+
+        return response()->json([
+            'message' => 'Chat conversation closed successfully.',
+            'chat'    => new ChatResource($chat->fresh()->load(['user', 'worker', 'service'])),
+        ]);
+    }
+
+    /**
      * Send a message in a chat.
      */
     public function sendMessage(Request $request, $id): JsonResponse
@@ -132,12 +194,28 @@ class ChatController extends Controller
         $chat = Chat::forUser($user->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:2000'],
+            'message' => ['nullable', 'string', 'max:2000'],
+            'image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
+        if (empty($validated['message']) && !$request->hasFile('image')) {
+            return response()->json(['message' => 'Please enter a message or attach an image.'], 422);
+        }
+
+        // If chat was closed, re-open when user sends a new message
+        if ($chat->status === 'closed') {
+            $chat->update(['status' => 'open']);
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('chat_attachments', 'public');
+        }
+
         $message = $chat->messages()->create([
-            'sender_id' => $user->id,
-            'message'   => $validated['message'],
+            'sender_id'  => $user->id,
+            'message'    => $validated['message'] ?? '',
+            'image_path' => $imagePath,
         ]);
 
         $chat->touch();
@@ -145,11 +223,16 @@ class ChatController extends Controller
         // Determine recipient (the other party)
         $recipientId = $user->id === $chat->user_id ? $chat->worker_id : $chat->user_id;
 
-        // Broadcast real-time event
-        broadcast(new NewChatMessage($message->load('sender'), $chat->id, $recipientId));
+        if ($recipientId) {
+            try {
+                broadcast(new NewChatMessage($message->load('sender'), $chat->id, $recipientId));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcasting chat message failed: ' . $e->getMessage());
+            }
+        }
 
         return response()->json([
-            'message' => new ChatMessageResource($message->load('sender')),
+            'message' => new ChatMessageResource($message->load(['sender', 'admin'])),
         ], 201);
     }
 }

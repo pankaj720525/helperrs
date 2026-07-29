@@ -14,6 +14,7 @@ class WorkerProfile extends Model
     protected $fillable = [
         'user_id',
         'address',
+        'city',
         'bio',
         'phone_public',
         'email_public',

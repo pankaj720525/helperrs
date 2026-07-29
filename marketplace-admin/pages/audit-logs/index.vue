@@ -47,7 +47,7 @@
                 <span v-else>-</span>
               </td>
               <td class="px-5 py-3.5 text-slate-400 font-mono">{{ log.ip_address }}</td>
-              <td class="px-5 py-3.5 text-slate-500 dark:text-slate-400">{{ log.created_at?.split('T')[0] }}</td>
+              <td class="px-5 py-3.5 text-slate-500 dark:text-slate-400 font-medium">{{ formatDate(log.created_at) }}</td>
             </tr>
           </tbody>
         </table>

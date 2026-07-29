@@ -3,72 +3,73 @@
 /* Force Tailwind CSS v4 to use class-based dark mode (.dark / .admin-dark) instead of OS media query */
 @variant dark (&:where(.dark, .dark *, .admin-dark, .admin-dark *));
 
-/* ─── Custom Design Tokens ──────────────────────────────── */
+/* ─── Falcon Design Tokens ──────────────────────────────── */
 @theme {
-  --color-primary: #3858F9;
-  --color-primary-light: #4F46E5;
-  --color-primary-dark: #2B42C1;
-  --color-primary-50: #EEF2FF;
-  --color-primary-100: #E0E7FF;
-  --color-primary-200: #C7D2FE;
-  --color-primary-300: #A5B4FC;
-  --color-primary-400: #818CF8;
-  --color-primary-500: #3858F9;
-  --color-primary-600: #2B42C1;
-  --color-primary-700: #1D2D8F;
+  --color-primary: #2c7be5;
+  --color-primary-light: #1665d8;
+  --color-primary-dark: #1251ab;
+  --color-primary-50: #edf5ff;
+  --color-primary-100: #d8e2ef;
+  --color-primary-200: #b4c6e7;
+  --color-primary-300: #8ba9df;
+  --color-primary-400: #558bd7;
+  --color-primary-500: #2c7be5;
+  --color-primary-600: #1a68d1;
+  --color-primary-700: #1251ab;
 
-  --color-surface: #F2F4F9;
-  --color-surface-light: #FFFFFF;
-  --color-surface-border: #E9EDF4;
+  --color-surface: #f9fbfd;
+  --color-surface-light: #ffffff;
+  --color-surface-border: #edf2f9;
+  --color-falcon-border: #d8e2ef;
 
-  --color-accent: #F59E0B;
-  --color-success: #10B981;
-  --color-danger: #EF4444;
-  --color-info: #3B82F6;
-  --color-warning: #F59E0B;
+  --color-accent: #f5803e;
+  --color-success: #00d27a;
+  --color-danger: #e63757;
+  --color-info: #27bcfd;
+  --color-warning: #f5803e;
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-sans: "Open Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Poppins", "Open Sans", system-ui, -apple-system, sans-serif;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
 
-  --shadow-glass: 0 2px 10px rgba(37, 51, 66, 0.05);
-  --shadow-glow: 0 0 20px rgba(56, 88, 249, 0.25);
-  --shadow-card: 0 2px 6px rgba(37, 51, 66, 0.04);
-  --shadow-card-hover: 0 6px 18px rgba(37, 51, 66, 0.08);
+  --shadow-glass: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+  --shadow-glow: 0 0 20px rgba(44, 123, 229, 0.25);
+  --shadow-card: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+  --shadow-card-hover: 0 1rem 2rem rgba(18, 38, 63, 0.06);
 }
 
 /* ─── Custom Utilities ──────────────────────────────────── */
 @utility glass {
-  background: #FFFFFF;
-  border: 1px solid #E9EDF4;
-  box-shadow: 0 2px 6px rgba(37, 51, 66, 0.04);
+  background: #ffffff;
+  border: 1px solid #edf2f9;
+  box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
 }
 
 @utility glass-light {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
-  border: 1px solid #E9EDF4;
+  border: 1px solid #edf2f9;
 }
 
 @utility gradient-primary {
-  background: linear-gradient(135deg, #3858F9, #4F46E5);
+  background: linear-gradient(135deg, #1265d8, #2c7be5);
 }
 
 @utility gradient-dark {
-  background: #F2F4F9;
+  background: #f9fbfd;
 }
 
 @utility gradient-sidebar {
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 @utility text-gradient {
-  background: linear-gradient(135deg, #3858F9, #4F46E5);
+  background: linear-gradient(135deg, #1265d8, #2c7be5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -92,7 +93,7 @@
 
 @utility scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #CBD5E1 transparent;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 /* ─── Keyframes ─────────────────────────────────────────── */
@@ -116,7 +117,7 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* ─── Base Styles (Valex Light Mode Default) ───────────── */
+/* ─── Base Styles (Falcon Theme Default) ────────────────── */
 *,
 *::before,
 *::after {
@@ -131,9 +132,10 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: #F2F4F9;
-  color: #1E293B;
-  line-height: 1.6;
+  background-color: #f9fbfd;
+  color: #2c7be5;
+  color: #12263f;
+  line-height: 1.5;
 }
 
 /* Scrollbar */
@@ -161,49 +163,50 @@ body {
 
 /* ── Default Light Mode Elements ────────────────────────── */
 header {
-  background-color: #FFFFFF;
-  border-bottom: 1px solid #E9EDF4;
+  background-color: #ffffff;
+  border-bottom: 1px solid #edf2f9;
 }
 
 aside {
-  background-color: #FFFFFF;
-  border-right: 1px solid #E9EDF4;
+  background-color: #ffffff;
+  border-right: 1px solid #edf2f9;
 }
 
 input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  color: #1E293B;
+  background-color: #ffffff;
+  border: 1px solid #d8e2ef;
+  color: #12263f;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #94A3B8;
+  color: #9da9bb;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #3858F9;
-  box-shadow: 0 0 0 2px rgba(56, 88, 249, 0.15);
+  border-color: #2c7be5;
+  box-shadow: 0 0 0 2px rgba(44, 123, 229, 0.15);
   outline: none;
 }
 
-/* Tables (Default Light Mode) */
+/* Tables (Falcon Light Mode) */
 table thead tr {
-  background-color: #F8FAFC;
-  border-bottom: 1px solid #E9EDF4;
+  background-color: #f9fbfd;
+  border-bottom: 1px solid #edf2f9;
 }
 table thead th {
-  color: #64748B;
+  color: #5e6e82;
+  font-weight: 600;
 }
 table tbody tr {
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid #edf2f9;
 }
 table tbody tr:hover {
-  background-color: #F8FAFC;
+  background-color: #f9fbfd;
 }
 
 /* ========================================================
@@ -211,33 +214,33 @@ table tbody tr:hover {
    ======================================================== */
 html.dark body,
 html.admin-dark body {
-  background-color: #0F172A;
-  color: #F8FAFC;
+  background-color: #0b1727;
+  color: #f9fbfd;
 }
 
 html.dark .min-h-screen,
 html.admin-dark .min-h-screen {
-  background-color: #0F172A;
+  background-color: #0b1727;
 }
 
 html.dark aside,
 html.admin-dark aside {
-  background-color: #111827;
-  border-right: 1px solid #1F2937;
+  background-color: #121e2d;
+  border-right: 1px solid #1e2c40;
 }
 
 html.dark header,
 html.admin-dark header {
-  background-color: rgba(17, 24, 39, 0.95);
-  border-bottom: 1px solid #1F2937;
+  background-color: rgba(18, 30, 45, 0.95);
+  border-bottom: 1px solid #1e2c40;
   backdrop-filter: blur(12px);
 }
 
 html.dark .glass,
 html.admin-dark .glass {
-  background-color: #1E293B;
-  border: 1px solid #334155;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  background-color: #121e2d;
+  border: 1px solid #1e2c40;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.3);
 }
 
 /* ========================================================

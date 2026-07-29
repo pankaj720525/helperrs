@@ -4,18 +4,43 @@
     <PublicNavbar />
 
     <!-- Dashboard Sidebar + Slot Container -->
-    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10">
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-4 sm:py-8">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
 
+        <!-- ── Mobile Menu Toggle Bar (Mobile Only) ──────────── -->
+        <div class="lg:hidden bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white text-base font-extrabold shadow-sm flex-shrink-0">
+              {{ userStore.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+            </div>
+            <div class="min-w-0">
+              <h2 class="font-bold text-slate-900 text-sm leading-tight truncate">{{ userStore.user?.name || 'Dashboard' }}</h2>
+              <p class="text-xs text-slate-500 font-medium truncate max-w-[180px]">{{ userStore.user?.email }}</p>
+            </div>
+          </div>
+          <button
+            @click="mobileNavOpen = !mobileNavOpen"
+            class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-200 transition-colors flex-shrink-0"
+          >
+            <span>Navigation</span>
+            <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': mobileNavOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+
         <!-- ── Persistent Left Sidebar Navigation ──────────── -->
-        <aside class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm sticky top-24">
+        <aside
+          class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm lg:sticky lg:top-24 transition-all"
+          :class="[ mobileNavOpen ? 'block' : 'hidden lg:block' ]"
+        >
           <!-- User Profile Brief -->
           <div class="text-center pb-6 border-b border-slate-100">
             <div class="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-white text-2xl font-extrabold mx-auto shadow-md mb-3">
               {{ userStore.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
             </div>
-            <h2 class="font-heading font-extrabold text-slate-900 text-lg leading-tight">{{ userStore.user?.name || 'Dashboard' }}</h2>
-            <p class="text-xs text-slate-500 font-medium truncate mt-0.5">{{ userStore.user?.email }}</p>
+            <h2 class="font-heading font-extrabold text-slate-900 text-lg leading-tight truncate">{{ userStore.user?.name || 'Dashboard' }}</h2>
+            <p class="text-xs text-slate-500 font-medium truncate mt-0.5 max-w-[220px] mx-auto">{{ userStore.user?.email }}</p>
             <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200">
               {{ userStore.isWorker ? t('roleWorker') : t('roleCustomer') }}
             </span>
@@ -26,6 +51,7 @@
             <!-- 1. Overview -->
             <NuxtLink
               to="/dashboard"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path === '/dashboard' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path === '/dashboard' ? 'color: #ffffff !important;' : ''"
@@ -39,6 +65,7 @@
             <!-- 2. Messages (Chats) -->
             <NuxtLink
               to="/chats"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path.startsWith('/chats') ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path.startsWith('/chats') ? 'color: #ffffff !important;' : ''"
@@ -56,6 +83,7 @@
             <NuxtLink
               v-if="userStore.isWorker"
               to="/dashboard/services"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path.startsWith('/dashboard/services') ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path.startsWith('/dashboard/services') ? 'color: #ffffff !important;' : ''"
@@ -69,6 +97,7 @@
             <!-- 4. Saved Services (Wishlist) -->
             <NuxtLink
               to="/dashboard/wishlist"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path === '/dashboard/wishlist' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path === '/dashboard/wishlist' ? 'color: #ffffff !important;' : ''"
@@ -87,6 +116,7 @@
             <!-- 5. Profile -->
             <NuxtLink
               to="/dashboard/profile"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path === '/dashboard/profile' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path === '/dashboard/profile' ? 'color: #ffffff !important;' : ''"
@@ -100,6 +130,7 @@
             <!-- 6. Notifications -->
             <NuxtLink
               to="/dashboard/notifications"
+              @click="mobileNavOpen = false"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all"
               :class="route.path === '/dashboard/notifications' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
               :style="route.path === '/dashboard/notifications' ? 'color: #ffffff !important;' : ''"
@@ -125,7 +156,7 @@
         </aside>
 
         <!-- ── Main Dashboard Content Slot ────────────────── -->
-        <main class="lg:col-span-3">
+        <main class="lg:col-span-3 min-w-0">
           <slot />
         </main>
 
@@ -143,6 +174,8 @@ const route = useRoute();
 const api = useApi();
 const { wishlistCount, initWishlist } = useWishlist();
 const { t, initLang } = useLanguage();
+
+const mobileNavOpen = ref(false);
 
 onMounted(() => {
   initLang();
