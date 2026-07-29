@@ -15,74 +15,82 @@
 
     <!-- Service Form -->
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-      <form @submit.prevent="handleSubmit" class="space-y-5">
+      <form @submit.prevent="handleSubmit" class="space-y-5" novalidate>
         <!-- Category selection -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('category') }}</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('category') }} <span class="text-rose-600">*</span></label>
           <select
             v-model="form.category_id"
-            required
-            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium transition-all"
+            :class="{ 'border-rose-500 bg-rose-50/30 text-rose-900': fieldErrors.category_id }"
           >
             <option value="" disabled>{{ t('selectCategory') }}</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
+          <p v-if="fieldErrors.category_id" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.category_id }}</p>
         </div>
 
         <!-- Title -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('title') }}</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('title') }} <span class="text-rose-600">*</span></label>
           <input
             v-model="form.title"
             type="text"
-            required
             placeholder="e.g. Professional AC Leak Repair & Installation"
-            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm font-medium"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm font-medium transition-all"
+            :class="{ 'border-rose-500 bg-rose-50/30 text-rose-900': fieldErrors.title }"
           />
+          <p v-if="fieldErrors.title" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.title }}</p>
         </div>
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('description') }}</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('description') }} <span class="text-rose-600">*</span></label>
           <textarea
             v-model="form.description"
             rows="4"
             placeholder="Describe what is included, tools used, and special specifications of your service..."
-            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm resize-none font-medium"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm resize-none font-medium transition-all"
+            :class="{ 'border-rose-500 bg-rose-50/30 text-rose-900': fieldErrors.description }"
           />
+          <p v-if="fieldErrors.description" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.description }}</p>
         </div>
 
         <!-- Price Range -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('minPrice') }}</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('minPrice') }} <span class="text-rose-600">*</span></label>
             <input
               v-model.number="form.price_min"
               type="number"
               min="0"
-              required
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium"
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium transition-all"
+              :class="{ 'border-rose-500 bg-rose-50/30 text-rose-900': fieldErrors.price_min }"
             />
+            <p v-if="fieldErrors.price_min" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.price_min }}</p>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('maxPriceLabel') }}</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('maxPriceLabel') }} <span class="text-rose-600">*</span></label>
             <input
               v-model.number="form.price_max"
               type="number"
               min="0"
-              required
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium"
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-rose-600 text-sm font-medium transition-all"
+              :class="{ 'border-rose-500 bg-rose-50/30 text-rose-900': fieldErrors.price_max }"
             />
+            <p v-if="fieldErrors.price_max" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.price_max }}</p>
           </div>
         </div>
 
         <!-- Image Upload -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">{{ t('serviceImageLabel') }}</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t('serviceImageLabel') }}</label>
           <div class="flex items-center gap-4 flex-wrap">
             <div class="w-24 h-24 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center flex-shrink-0">
               <img v-if="previewUrl" :src="previewUrl" class="w-full h-full object-cover" />
-              <span v-else class="text-3xl text-slate-300">📸</span>
+              <svg v-else class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
             </div>
             <div class="flex-1">
               <input
@@ -105,7 +113,7 @@
         </div>
 
         <!-- Validation / Error messages -->
-        <p v-if="errorMsg" class="text-rose-600 text-sm font-semibold">❌ {{ errorMsg }}</p>
+        <p v-if="errorMsg" class="text-rose-600 text-xs font-semibold p-3 bg-rose-50 rounded-xl border border-rose-200">{{ errorMsg }}</p>
 
         <!-- Form Actions -->
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
@@ -133,6 +141,7 @@
 definePageMeta({ layout: 'dashboard' });
 
 const api = useApi();
+const userStore = useUserStore();
 const { t, initLang } = useLanguage();
 const categories = ref<any[]>([]);
 const saving = ref(false);
@@ -152,8 +161,22 @@ const previewUrl = ref("");
 
 onMounted(async () => {
   initLang();
+  await checkUserLocationSetup();
   await loadCategories();
 });
+
+const checkUserLocationSetup = async () => {
+  try {
+    const res = await api.get<any>('/profile');
+    if (res.user) {
+      userStore.updateUser(res.user);
+      const wp = res.user.worker_profile;
+      if (!wp || !wp.latitude || !wp.longitude || !wp.address || !wp.city) {
+        navigateTo('/dashboard/profile?setup_location=true');
+      }
+    }
+  } catch { }
+};
 
 const loadCategories = async () => {
   try {
@@ -181,9 +204,47 @@ const handleImageChange = (e: Event) => {
   errorMsg.value = "";
 };
 
+const fieldErrors = reactive<Record<string, string>>({
+  category_id: "",
+  title: "",
+  description: "",
+  price_min: "",
+  price_max: ""
+});
+
 const handleSubmit = async () => {
-  saving.value = true;
   errorMsg.value = "";
+  fieldErrors.category_id = "";
+  fieldErrors.title = "";
+  fieldErrors.description = "";
+  fieldErrors.price_min = "";
+  fieldErrors.price_max = "";
+
+  let hasError = false;
+  if (!form.category_id) {
+    fieldErrors.category_id = "Please select a service category.";
+    hasError = true;
+  }
+  if (!form.title.trim()) {
+    fieldErrors.title = "Please enter a service title.";
+    hasError = true;
+  }
+  if (!form.description.trim()) {
+    fieldErrors.description = "Please enter a service description.";
+    hasError = true;
+  }
+  if (form.price_min === null || form.price_min === undefined || isNaN(form.price_min)) {
+    fieldErrors.price_min = "Please enter a valid minimum price.";
+    hasError = true;
+  }
+  if (form.price_max === null || form.price_max === undefined || isNaN(form.price_max)) {
+    fieldErrors.price_max = "Please enter a valid maximum price.";
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  saving.value = true;
 
   try {
     const formData = new FormData();
@@ -199,8 +260,20 @@ const handleSubmit = async () => {
     await api.post("/services", formData);
     navigateTo("/dashboard/services");
   } catch (e: any) {
+    if (e?.data?.location_missing) {
+      navigateTo("/dashboard/profile?setup_location=true");
+      return;
+    }
     const errors = e?.data?.errors;
-    errorMsg.value = errors ? Object.values(errors).flat().join(" ") : (e?.data?.message || "Failed to create service.");
+    if (errors) {
+      if (errors.category_id) fieldErrors.category_id = errors.category_id[0];
+      if (errors.title) fieldErrors.title = errors.title[0];
+      if (errors.description) fieldErrors.description = errors.description[0];
+      if (errors.price_min) fieldErrors.price_min = errors.price_min[0];
+      if (errors.price_max) fieldErrors.price_max = errors.price_max[0];
+    } else {
+      errorMsg.value = e?.data?.message || "Failed to create service. Please check your inputs.";
+    }
   } finally {
     saving.value = false;
   }

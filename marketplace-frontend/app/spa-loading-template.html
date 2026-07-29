@@ -1,0 +1,24 @@
+<div id="__nuxt-preloader">
+  <div style="display:flex;flex-direction:column;align-items:center">
+    <div class="pl-ring"><div class="pl-icon"><span>SM</span></div></div>
+    <div class="pl-brand">Service<span class="pl-accent">Market</span></div>
+    <div class="pl-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+<style>
+#__nuxt-preloader{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff 0%,#f8fafc 50%,#f1f5f9 100%);transition:opacity .4s ease,transform .4s ease}
+#__nuxt-preloader.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+#__nuxt-preloader .pl-ring{position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center}
+#__nuxt-preloader .pl-ring::before{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid #e2e8f0;border-top-color:#B20537;border-right-color:#D4064A;animation:pl-spin 1s cubic-bezier(.4,0,.2,1) infinite}
+#__nuxt-preloader .pl-icon{width:56px;height:56px;border-radius:1rem;background:linear-gradient(135deg,#B20537,#D4064A,#F43F5E);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(178,5,55,.3);animation:pl-pulse 1.5s ease-in-out infinite}
+#__nuxt-preloader .pl-icon span{color:#fff;font-family:Outfit,Inter,sans-serif;font-weight:800;font-size:1.375rem}
+#__nuxt-preloader .pl-brand{font-family:Outfit,Inter,sans-serif;font-weight:700;font-size:1.25rem;color:#0f172a;margin-top:1rem}
+#__nuxt-preloader .pl-accent{background:linear-gradient(135deg,#B20537,#F43F5E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#__nuxt-preloader .pl-dots{display:flex;gap:6px;margin-top:.75rem}
+#__nuxt-preloader .pl-dots span{width:6px;height:6px;border-radius:50%;background:#B20537;animation:pl-bounce .6s ease-in-out infinite alternate}
+#__nuxt-preloader .pl-dots span:nth-child(2){animation-delay:.15s}
+#__nuxt-preloader .pl-dots span:nth-child(3){animation-delay:.3s}
+@keyframes pl-spin{to{transform:rotate(360deg)}}
+@keyframes pl-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes pl-bounce{from{transform:translateY(0);opacity:.4}to{transform:translateY(-6px);opacity:1}}
+</style>

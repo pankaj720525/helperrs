@@ -5,11 +5,12 @@ namespace App\Models;
 use App\Models\Concerns\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    use HasHashId;
+    use HasHashId, SoftDeletes;
 
     protected $fillable = [
         'name',

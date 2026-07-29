@@ -31,7 +31,7 @@
         <div class="ft-feature">
           <div class="ft-feat-icon">
             <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3h12M6 8h12M6 3v10a4 4 0 004 4h2l5 5M6 13h9"/>
             </svg>
           </div>
           <div>
@@ -217,7 +217,7 @@ const handleSubscribe = () => {
 :global(html.dark) .ft-banner { background: rgba(30, 41, 59, 0.5); border-bottom-color: rgba(255,255,255,0.06); }
 
 .ft-banner-inner {
-  max-width: 80rem; margin: 0 auto; padding: 0 1.25rem;
+  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
 }
 @media (max-width: 1024px) { .ft-banner-inner { grid-template-columns: repeat(2, 1fr); } }
@@ -239,7 +239,7 @@ const handleSubscribe = () => {
 /* ── Main Columns ────────────────────────────────── */
 .ft-main { padding: 3.5rem 0; }
 .ft-main-inner {
-  max-width: 80rem; margin: 0 auto; padding: 0 1.25rem;
+  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr; gap: 2rem;
 }
 @media (max-width: 1200px) { .ft-main-inner { grid-template-columns: 1fr 1fr 1fr; } }
@@ -322,7 +322,7 @@ const handleSubscribe = () => {
 .ft-bottom { background: #ffffff; border-top: 1px solid #e2e8f0; padding: 1.5rem 0; }
 :global(html.dark) .ft-bottom { background: #05080f; border-top-color: rgba(255,255,255,0.06); }
 .ft-bottom-inner {
-  max-width: 80rem; margin: 0 auto; padding: 0 1.25rem;
+  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
   display: flex; flex-direction: column; gap: 1.25rem;
 }
 

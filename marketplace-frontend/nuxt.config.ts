@@ -38,6 +38,8 @@ export default defineNuxtConfig({
     },
   },
 
+  spaLoadingTemplate: true,
+
   runtimeConfig: {
     public: {
       apiBase: "http://localhost:8000/api",

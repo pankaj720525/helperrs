@@ -31,7 +31,7 @@ class SearchController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
 
-        $radius = $validated['radius'] ?? 25;
+        $radius = $validated['radius'] ?? 50;
         $perPage = $validated['per_page'] ?? 15;
 
         $filters = [

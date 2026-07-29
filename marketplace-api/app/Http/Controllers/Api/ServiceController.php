@@ -10,18 +10,61 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\GeoSearchService;
+
 class ServiceController extends Controller
 {
+    public function __construct(
+        protected GeoSearchService $geoSearchService
+    ) {}
+
     /**
      * List all approved services (public).
      */
     public function index(Request $request): JsonResponse
     {
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $lat = (float) $request->lat;
+            $lng = (float) $request->lng;
+            $radius = (int) ($request->radius ?? 50);
+
+            $filters = [];
+            if ($request->category_id) {
+                $filters['category_id'] = $request->category_id;
+            }
+            if ($request->keyword) {
+                $filters['keyword'] = $request->keyword;
+            }
+
+            $query = $this->geoSearchService->searchNearby($lat, $lng, $radius, $filters);
+            $results = $query->paginate($request->per_page ?? 15);
+
+            $serviceIds = collect($results->items())->pluck('service_id')->toArray();
+            
+            $services = Service::whereIn('id', $serviceIds)
+                ->with(['category', 'user.workerProfile'])
+                ->withCount('reviews')
+                ->withAvg('reviews', 'rating')
+                ->get();
+
+            return response()->json([
+                'services' => ServiceResource::collection($services),
+                'meta' => [
+                    'current_page' => $results->currentPage(),
+                    'last_page'    => $results->lastPage(),
+                    'per_page'     => $results->perPage(),
+                    'total'        => $results->total(),
+                    'search_radius' => $radius,
+                ],
+            ]);
+        }
+
         $services = Service::approved()
             ->with(['category', 'user.workerProfile'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->when($request->category_id, fn($q, $catId) => $q->where('category_id', $catId))
+            ->when($request->keyword, fn($q, $kw) => $q->where('title', 'LIKE', "%{$kw}%"))
             ->latest()
             ->paginate($request->per_page ?? 15);
 
@@ -57,6 +100,14 @@ class ServiceController extends Controller
     public function store(StoreServiceRequest $request): JsonResponse
     {
         $user = $request->user();
+
+        $workerProfile = $user->workerProfile;
+        if (!$workerProfile || is_null($workerProfile->latitude) || is_null($workerProfile->longitude) || empty($workerProfile->address) || empty($workerProfile->city)) {
+            return response()->json([
+                'message' => 'Location setup is required before creating a service. Please select your location in your profile first.',
+                'location_missing' => true,
+            ], 422);
+        }
 
         if (!$user->isWorker()) {
             return response()->json([

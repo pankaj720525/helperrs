@@ -5,11 +5,12 @@ namespace App\Models;
 use App\Models\Concerns\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class WorkerProfile extends Model
 {
-    use HasHashId;
+    use HasHashId, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -44,9 +45,10 @@ class WorkerProfile extends Model
      */
     public function setLocation(float $latitude, float $longitude): void
     {
+        $pointStr = sprintf('POINT(%f %f)', $longitude, $latitude);
         DB::statement(
-            "UPDATE worker_profiles SET location = ST_GeomFromText('POINT(? ?)') WHERE id = ?",
-            [$longitude, $latitude, $this->id]
+            'UPDATE worker_profiles SET location = ST_GeomFromText(?) WHERE id = ?',
+            [$pointStr, $this->id]
         );
     }
 

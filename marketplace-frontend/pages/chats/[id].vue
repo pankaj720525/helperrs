@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-4xl mx-auto px-2 sm:px-6 py-4 md:py-10">
-    <div v-if="chat" class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-md overflow-hidden flex flex-col h-[75vh] min-h-[480px] max-h-[750px] w-full">
+  <div class="w-full">
+    <div v-if="chat" class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-md overflow-hidden flex flex-col w-full" style="height: calc(100vh - 220px); min-height: 480px;">
 
       <!-- ── Chat Room Header Bar ────────────────────────── -->
       <div class="p-3 sm:p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between gap-2 flex-wrap">
@@ -121,72 +121,84 @@
       </div>
 
       <!-- ── Quick Reply Suggestion Chips ───────────────── -->
-      <div class="px-4 py-2 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto scrollbar-none">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">Quick Reply:</span>
-        <button
-          v-for="reply in currentQuickReplies"
-          :key="reply"
-          type="button"
-          @click="newMessage = reply; sendMsg()"
-          class="px-3 py-1 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
-        >
-          {{ reply }}
-        </button>
-      </div>
-
-      <!-- Image Attachment Preview Bar -->
-      <div v-if="attachedImagePreview" class="px-4 py-2 bg-rose-50 border-t border-rose-100 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <img :src="attachedImagePreview" class="w-10 h-10 rounded-lg object-cover border border-rose-200 shadow-xs" />
-          <span class="text-xs font-bold text-rose-700">Image Attached</span>
-        </div>
-        <button @click="removeAttachedImage" class="p-1 rounded-full bg-rose-200 text-rose-800 text-xs font-bold hover:bg-rose-300">
-          ✕
-        </button>
-      </div>
-
-      <!-- ── Message Input Bar ──────────────────────────── -->
-      <div class="p-3 sm:p-4 bg-white border-t border-slate-200">
-        <form @submit.prevent="sendMsg" class="flex items-center gap-2 sm:gap-3">
-          <!-- Image Upload Button -->
-          <input
-            ref="fileInputRef"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="handleImageSelect"
-          />
+      <template v-if="chat.status !== 'closed'">
+        <div class="px-4 py-2 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">Quick Reply:</span>
           <button
+            v-for="reply in currentQuickReplies"
+            :key="reply"
             type="button"
-            @click="triggerFileSelect"
-            class="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors flex-shrink-0"
-            title="Attach Image"
+            @click="newMessage = reply; sendMsg()"
+            class="px-3 py-1 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+            {{ reply }}
           </button>
+        </div>
 
-          <input
-            v-model="newMessage"
-            @input="handleTyping"
-            type="text"
-            placeholder="Type your message here..."
-            class="flex-1 px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm font-medium"
-          />
-
-          <button
-            type="submit"
-            :disabled="(!newMessage.trim() && !attachedFile) || sending"
-            class="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 text-white text-sm font-extrabold hover:shadow-md transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-            style="color: #ffffff !important;"
-          >
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-            </svg>
-            <span class="text-white font-bold">{{ sending ? 'Sending...' : 'Send' }}</span>
+        <!-- Image Attachment Preview Bar -->
+        <div v-if="attachedImagePreview" class="px-4 py-2 bg-rose-50 border-t border-rose-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <img :src="attachedImagePreview" class="w-10 h-10 rounded-lg object-cover border border-rose-200 shadow-xs" />
+            <span class="text-xs font-bold text-rose-700">Image Attached</span>
+          </div>
+          <button @click="removeAttachedImage" class="p-1 rounded-full bg-rose-200 text-rose-800 text-xs font-bold hover:bg-rose-300">
+            ✕
           </button>
-        </form>
+        </div>
+
+        <!-- ── Message Input Bar ──────────────────────────── -->
+        <div class="p-3 sm:p-4 bg-white border-t border-slate-200">
+          <form @submit.prevent="sendMsg" class="flex items-center gap-2 sm:gap-3">
+            <!-- Image Upload Button -->
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleImageSelect"
+            />
+            <button
+              type="button"
+              @click="triggerFileSelect"
+              class="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors flex-shrink-0"
+              title="Attach Image"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </button>
+
+            <input
+              v-model="newMessage"
+              @input="handleTyping"
+              type="text"
+              placeholder="Type your message here..."
+              class="flex-1 px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-600 text-sm font-medium"
+            />
+
+            <button
+              type="submit"
+              :disabled="(!newMessage.trim() && !attachedFile) || sending"
+              class="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 text-white text-sm font-extrabold hover:shadow-md transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              style="color: #ffffff !important;"
+            >
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
+              <span class="text-white font-bold">{{ sending ? 'Sending...' : 'Send' }}</span>
+            </button>
+          </form>
+        </div>
+      </template>
+
+      <!-- ── Closed Chat Banner ──────────────────────────── -->
+      <div v-else class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 text-center">
+        <div class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 border border-slate-200">
+          <svg class="w-5 h-5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v.01M12 12a1 1 0 001-1V8a1 1 0 00-2 0v3a1 1 0 001 1zm0 9a9 9 0 110-18 9 9 0 010 18z"/>
+          </svg>
+          <span class="text-sm font-bold text-slate-600">This conversation has been closed. You can no longer send messages.</span>
+        </div>
       </div>
 
     </div>

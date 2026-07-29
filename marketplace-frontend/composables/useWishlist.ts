@@ -24,6 +24,14 @@ export const useWishlist = () => {
   };
 
   const toggleWishlist = (serviceId: string | number, serviceTitle?: string) => {
+    const userStore = useUserStore();
+    userStore.loadFromStorage();
+    if (!userStore.isAuthenticated) {
+      showToast('Please login first to save services to your wishlist');
+      navigateTo('/login');
+      return;
+    }
+
     const id = String(serviceId);
     const index = wishlistedIds.value.indexOf(id);
     if (index >= 0) {
@@ -51,6 +59,7 @@ export const useWishlist = () => {
   const wishlistCount = computed(() => wishlistedIds.value.length);
 
   return {
+    wishlist: wishlistedIds,
     wishlistedIds,
     wishlistCount,
     toastMessage,

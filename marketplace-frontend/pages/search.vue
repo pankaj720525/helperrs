@@ -4,9 +4,18 @@
     <!-- ── Header & Location Bar ────────────────────────── -->
     <div class="sp-header">
       <div class="sp-header-title-row">
-        <h1 class="sp-title"><span class="sp-title-icon">🔍</span> {{ t('searchTitle') }}</h1>
-        <button type="button" @click="openModal" class="sp-loc-badge">
-          📍 {{ t('locationLabel') }} <strong>{{ currentLocation.formatted }}</strong> {{ t('clickToChange') }}
+        <h1 class="sp-title">
+          <svg class="w-7 h-7 text-rose-600 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <span>{{ t('searchTitle') }}</span>
+        </h1>
+        <button type="button" @click="openModal" class="sp-loc-badge flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-rose-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>{{ t('locationLabel') }} <strong>{{ currentLocation.formatted }}</strong> {{ t('clickToChange') }}</span>
         </button>
       </div>
       <p class="sp-sub">{{ t('searchSub') }}</p>
@@ -18,25 +27,36 @@
       <!-- Main Search Row -->
       <div class="sp-main-search-row">
         <div class="sp-search-input-wrap">
-          <span class="sp-si-icon">🔍</span>
+          <svg class="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
           <input
             v-model="keyword"
             type="text"
             :placeholder="t('searchPlaceholderInput')"
-            class="sp-main-input"
+            class="sp-main-input pl-11 pr-10"
             @keydown.enter="handleSearch"
           />
-          <button v-if="keyword" type="button" @click="keyword = ''" class="sp-clear-btn">✕</button>
+          <button v-if="keyword" type="button" @click="keyword = ''" class="sp-clear-btn absolute right-3">
+            <svg class="w-4 h-4 text-slate-400 hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
 
         <button
           type="button"
           @click="handleSearch"
           :disabled="searching"
-          class="sp-search-btn"
+          class="sp-search-btn flex items-center justify-center gap-2"
         >
           <span v-if="searching" class="sp-spinner" />
-          <template v-else>{{ t('searchBtnLabel') }}</template>
+          <template v-else>
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span>{{ t('searchBtnLabel') }}</span>
+          </template>
         </button>
       </div>
 
@@ -62,7 +82,12 @@
 
         <!-- Category Dropdown -->
         <div class="sp-filter-group">
-          <label class="sp-label">{{ t('categoryFilter') }}</label>
+          <label class="sp-label flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            <span>{{ t('categoryFilter') }}</span>
+          </label>
           <select v-model="category" class="sp-select">
             <option value="">{{ t('allCategoriesOpt') }}</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
@@ -72,7 +97,12 @@
         <!-- Price Range Slider -->
         <div class="sp-filter-group">
           <div class="sp-label-row">
-            <label class="sp-label">{{ t('priceFilter') }}</label>
+            <label class="sp-label flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3h12M6 8h12M6 3v10a4 4 0 004 4h2l5 5M6 13h9"/>
+              </svg>
+              <span>{{ t('priceFilter') }}</span>
+            </label>
             <span class="sp-val-highlight">₹{{ maxPrice }}</span>
           </div>
           <input v-model.number="maxPrice" type="range" min="100" max="10000" step="100" class="sp-slider" />
@@ -81,7 +111,13 @@
         <!-- Radius Range Slider -->
         <div class="sp-filter-group">
           <div class="sp-label-row">
-            <label class="sp-label">{{ t('radiusFilter') }}</label>
+            <label class="sp-label flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>{{ t('radiusFilter') }}</span>
+            </label>
             <span class="sp-val-highlight">{{ radius }} km</span>
           </div>
           <input v-model.number="radius" type="range" min="1" max="100" class="sp-slider" />
@@ -89,7 +125,12 @@
 
         <!-- Minimum Rating Filter -->
         <div class="sp-filter-group">
-          <label class="sp-label">{{ t('ratingFilter') }}</label>
+          <label class="sp-label flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <span>{{ t('ratingFilter') }}</span>
+          </label>
           <select v-model="minRating" class="sp-select">
             <option value="0">{{ t('anyRating') }}</option>
             <option value="4.5">{{ t('topRated') }}</option>
@@ -100,7 +141,12 @@
 
         <!-- Sort By -->
         <div class="sp-filter-group">
-          <label class="sp-label">🔃 {{ t('sortBy') }}</label>
+          <label class="sp-label flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+            <span>{{ t('sortBy') }}</span>
+          </label>
           <select v-model="sortBy" class="sp-select">
             <option value="relevance">{{ t('relevance') }}</option>
             <option value="rating">Highest Rated</option>
@@ -114,47 +160,69 @@
 
       <!-- Labels & Feature Toggles -->
       <div class="sp-labels-section">
-        <label class="sp-label mb-2 block">🏷️ Filter by Requirement & Badges</label>
+        <label class="sp-label mb-2 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          <span>Filter by Requirement & Badges</span>
+        </label>
         <div class="sp-toggles-row">
           <button
             type="button"
             @click="toggleFeature('express')"
-            class="sp-toggle-pill"
+            class="sp-toggle-pill flex items-center gap-1.5"
             :class="{ active: selectedFeatures.includes('express') }"
           >
-            ⚡ Express 2-Hour Delivery
+            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span>Express 2-Hour Delivery</span>
           </button>
           <button
             type="button"
             @click="toggleFeature('verified')"
-            class="sp-toggle-pill"
+            class="sp-toggle-pill flex items-center gap-1.5"
             :class="{ active: selectedFeatures.includes('verified') }"
           >
-            ✔️ Verified Professionals
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <span>Verified Professionals</span>
           </button>
           <button
             type="button"
             @click="toggleFeature('trending')"
-            class="sp-toggle-pill"
+            class="sp-toggle-pill flex items-center gap-1.5"
             :class="{ active: selectedFeatures.includes('trending') }"
           >
-            🔥 Trending & Hot Deals
+            <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+            </svg>
+            <span>Trending & Hot Deals</span>
           </button>
           <button
             type="button"
             @click="toggleFeature('warranty')"
-            class="sp-toggle-pill"
+            class="sp-toggle-pill flex items-center gap-1.5"
             :class="{ active: selectedFeatures.includes('warranty') }"
           >
-            🛡️ 30-Day Warranty
+            <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>30-Day Warranty</span>
           </button>
         </div>
       </div>
 
       <!-- Reset & Active Filters Row -->
       <div class="sp-active-bar" v-if="hasActiveFilters">
-        <span class="sp-af-text">Filters Active</span>
-        <button type="button" @click="resetFilters" class="sp-reset-btn">Reset All Filters 🔄</button>
+        <span class="sp-af-text font-bold text-rose-600">Filters Active</span>
+        <button type="button" @click="resetFilters" class="sp-reset-btn flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span>Reset All Filters</span>
+        </button>
       </div>
 
     </div>
@@ -271,11 +339,47 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="sp-empty">
-      <div class="sp-empty-icon">📭</div>
-      <h3 class="sp-empty-title">No services found for selected filters</h3>
-      <p class="sp-empty-tip">Try adjusting your price range, radius, or reset active filters to see all available services in {{ currentLocation.city }}.</p>
-      <button type="button" @click="resetFilters" class="sp-reset-btn-large">Reset All Filters 🔄</button>
+    <div v-else class="sp-empty-animated">
+      <div class="sp-radar-wrap">
+        <div class="sp-radar-ring ring-1" />
+        <div class="sp-radar-ring ring-2" />
+        <div class="sp-radar-ring ring-3" />
+        <div class="sp-empty-icon-box">
+          <svg class="w-10 h-10 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <div class="sp-ping-dot" />
+        </div>
+      </div>
+
+      <div class="sp-empty-content">
+        <h3 class="sp-empty-title">No Services Found Nearby</h3>
+        <p class="sp-empty-tip">
+          We couldn't find any service providers within <strong>{{ radius }} km</strong> radius of <strong>{{ currentLocation.formatted }}</strong> matching your filters.
+        </p>
+
+        <div class="sp-empty-actions">
+          <button v-if="radius < 50" type="button" @click="radius = 50; handleSearch()" class="sp-btn-expand">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+            </svg>
+            <span>Expand Radius to 50 km</span>
+          </button>
+          <button type="button" @click="resetFilters" class="sp-btn-reset">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Reset All Filters</span>
+          </button>
+          <button type="button" @click="openModal" class="sp-btn-loc">
+            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>Change Location</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Quick View Modal -->
@@ -301,7 +405,7 @@ const results = ref<any[]>([]);
 
 const keyword = ref('');
 const category = ref('');
-const radius = ref(25);
+const radius = ref(50);
 const maxPrice = ref(5000);
 const minRating = ref('0');
 const sortBy = ref('relevance');
@@ -337,7 +441,7 @@ const hasActiveFilters = computed(() => {
 const resetFilters = () => {
   keyword.value = '';
   category.value = '';
-  radius.value = 25;
+  radius.value = 50;
   maxPrice.value = 5000;
   minRating.value = '0';
   sortBy.value = 'relevance';
@@ -441,14 +545,13 @@ watch(() => currentLocation.value.city, () => {
 
 .sp-search-input-wrap {
   flex: 1; position: relative; display: flex; align-items: center;
-  background: #f8fafc; border: 1.5px solid #cbd5e1;
-  border-radius: 0.75rem; padding: 0 1rem;
+  background: #ffffff !important; border: 1.5px solid #cbd5e1;
+  border-radius: 0.75rem; overflow: hidden;
 }
-.dark .sp-search-input-wrap { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
-.sp-si-icon { font-size: 1rem; color: #64748b; margin-right: 0.5rem; }
-.sp-main-input { flex: 1; height: 3rem; background: transparent; border: none; color: #0f172a; font-size: 0.9375rem; outline: none; font-weight: 500; }
-.dark .sp-main-input { color: #fff; }
-.sp-clear-btn { background: none; border: none; color: #64748b; font-size: 1rem; cursor: pointer; }
+.dark .sp-search-input-wrap { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.12); }
+.sp-main-input { flex: 1; height: 3rem; background: transparent !important; border: none !important; color: #0f172a !important; font-size: 0.9375rem; outline: none; font-weight: 500; }
+.dark .sp-main-input { color: #fff !important; }
+.sp-clear-btn { background: none; border: none; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
 .sp-search-btn {
   padding: 0 1.75rem; height: 3rem; border-radius: 0.75rem; border: none;
@@ -485,10 +588,10 @@ watch(() => currentLocation.value.city, () => {
 
 .sp-select {
   padding: 0.625rem 0.875rem; border-radius: 0.625rem;
-  background: #f8fafc; border: 1.5px solid #cbd5e1;
-  color: #0f172a; font-size: 0.8125rem; outline: none; cursor: pointer; font-weight: 500;
+  background: #ffffff !important; border: 1.5px solid #cbd5e1;
+  color: #0f172a !important; font-size: 0.8125rem; outline: none; cursor: pointer; font-weight: 500;
 }
-.dark .sp-select { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: #fff; }
+.dark .sp-select { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.12); color: #fff !important; }
 .sp-select option { background: #ffffff; color: #0f172a; }
 .dark .sp-select option { background: #1e293b; color: #fff; }
 
@@ -589,15 +692,126 @@ watch(() => currentLocation.value.city, () => {
 }
 .sp-book-btn:hover { opacity: 0.9; }
 
-.sp-empty { text-align: center; padding: 4rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-.sp-empty-icon { font-size: 4rem; }
-.sp-empty-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
-.light .sp-empty-title { color: #0f172a; }
-.sp-empty-tip { color: #94a3b8; max-width: 28rem; text-align: center; margin: 0; }
-.sp-reset-btn-large {
-  padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none;
-  background: #B20537; color: #fff; font-weight: 700; cursor: pointer;
+.sp-empty-animated {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 2rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
+  position: relative;
+  overflow: hidden;
 }
+:global(html.dark) .sp-empty-animated {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sp-radar-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.sp-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(178, 5, 55, 0.3);
+  animation: radarPulse 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+.sp-radar-ring.ring-1 { width: 55px; height: 55px; animation-delay: 0s; }
+.sp-radar-ring.ring-2 { width: 85px; height: 85px; animation-delay: 0.8s; }
+.sp-radar-ring.ring-3 { width: 115px; height: 115px; animation-delay: 1.6s; }
+
+@keyframes radarPulse {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.sp-empty-icon-box {
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 1.25rem;
+  background: #fef2f5;
+  border: 1.5px solid #fbc0d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 12px 30px rgba(178, 5, 55, 0.18);
+  animation: floatIcon 3s ease-in-out infinite;
+}
+:global(html.dark) .sp-empty-icon-box {
+  background: rgba(178, 5, 55, 0.25);
+  border-color: rgba(178, 5, 55, 0.5);
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.sp-ping-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f43f5e;
+  border: 2px solid #ffffff;
+  animation: pingDot 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pingDot {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.sp-empty-content { max-width: 32rem; margin: 0 auto; }
+.sp-empty-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; }
+:global(html.dark) .sp-empty-title { color: #f8fafc; }
+.sp-empty-tip { font-size: 0.9375rem; color: #64748b; margin: 0 0 1.5rem; line-height: 1.6; }
+:global(html.dark) .sp-empty-tip { color: #94a3b8; }
+.sp-empty-tip strong { color: #b20537; font-weight: 700; }
+:global(html.dark) .sp-empty-tip strong { color: #f43f5e; }
+
+.sp-empty-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.75rem; }
+.sp-btn-expand {
+  padding: 0.75rem 1.25rem; border-radius: 0.75rem; border: none;
+  background: linear-gradient(135deg, #b20537, #f43f5e); color: #ffffff !important;
+  font-weight: 800; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(178, 5, 55, 0.3);
+  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+.sp-btn-expand:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(178, 5, 55, 0.4); }
+
+.sp-btn-reset {
+  padding: 0.75rem 1.25rem; border-radius: 0.75rem;
+  background: #f1f5f9; border: 1.5px solid #cbd5e1; color: #334155;
+  font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+:global(html.dark) .sp-btn-reset { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); color: #f1f5f9; }
+.sp-btn-reset:hover { background: #e2e8f0; color: #0f172a; }
+
+.sp-btn-loc {
+  padding: 0.75rem 1.25rem; border-radius: 0.75rem;
+  background: #fef2f5; border: 1.5px solid #fbc0d0; color: #b20537;
+  font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+:global(html.dark) .sp-btn-loc { background: rgba(178, 5, 55, 0.15); border-color: rgba(178, 5, 55, 0.3); color: #f43f5e; }
+.sp-btn-loc:hover { background: #fde8ed; }
 
 .sp-spinner {
   display: inline-block; width: 16px; height: 16px;

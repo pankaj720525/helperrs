@@ -73,24 +73,38 @@
 definePageMeta({ layout: 'dashboard' });
 
 const api = useApi();
-const { wishlist, toggleWishlist } = useWishlist();
+const { wishlistedIds, initWishlist, toggleWishlist } = useWishlist();
 const { getServiceImage } = useDefaultImage();
 
 const wishlistServices = ref<any[]>([]);
+const loading = ref(false);
 
 const loadWishlistServices = async () => {
-  if (!wishlist.value.length) {
+  initWishlist();
+  const ids = wishlistedIds.value.map(id => String(id));
+  if (!ids.length) {
     wishlistServices.value = [];
     return;
   }
+
+  loading.value = true;
   try {
-    const data = await api.get<any>('/services', { per_page: 50 });
+    const data = await api.get<any>('/services', { per_page: 100 });
     const all = data.services || [];
-    wishlistServices.value = all.filter((s: any) => wishlist.value.includes(s.id));
-  } catch {}
+    wishlistServices.value = all.filter((s: any) => ids.includes(String(s.id)));
+  } catch (e) {
+    console.error('Failed to load wishlist services:', e);
+  } finally {
+    loading.value = false;
+  }
 };
 
 onMounted(() => {
+  const userStore = useUserStore();
+  userStore.loadFromStorage();
+  if (!userStore.isAuthenticated) {
+    return navigateTo('/login');
+  }
   loadWishlistServices();
 });
 </script>

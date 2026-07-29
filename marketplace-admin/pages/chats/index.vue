@@ -251,73 +251,85 @@
           </div>
 
           <!-- Quick Reply Suggestion Chips -->
-          <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/60 border-t border-[#edf2f9] dark:border-[#1e2c40] flex items-center gap-2 overflow-x-auto">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">QUICK REPLY:</span>
-            <button
-              v-for="qr in quickReplies"
-              :key="qr"
-              @click="replyMessage = qr; sendAdminReply()"
-              class="px-3 py-1 rounded-xl bg-white dark:bg-[#121e2d] hover:bg-[#5c52e9]/10 text-[#5c52e9] border border-slate-200 dark:border-slate-700 text-[11px] font-semibold whitespace-nowrap transition-colors"
-            >
-              {{ qr }}
-            </button>
-          </div>
-
-          <!-- Image Attachment Preview Bar -->
-          <div v-if="adminAttachedImagePreview" class="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-t border-indigo-100 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <img :src="adminAttachedImagePreview" class="w-10 h-10 rounded-lg object-cover border border-indigo-200 shadow-2xs" />
-              <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">Image Attached</span>
+          <template v-if="selectedChat.status !== 'closed'">
+            <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/60 border-t border-[#edf2f9] dark:border-[#1e2c40] flex items-center gap-2 overflow-x-auto">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">QUICK REPLY:</span>
+              <button
+                v-for="qr in quickReplies"
+                :key="qr"
+                @click="replyMessage = qr; sendAdminReply()"
+                class="px-3 py-1 rounded-xl bg-white dark:bg-[#121e2d] hover:bg-[#5c52e9]/10 text-[#5c52e9] border border-slate-200 dark:border-slate-700 text-[11px] font-semibold whitespace-nowrap transition-colors"
+              >
+                {{ qr }}
+              </button>
             </div>
-            <button @click="removeAdminAttachedImage" class="p-1 rounded-full bg-indigo-200 text-indigo-800 text-xs font-bold hover:bg-indigo-300">
-              ✕
-            </button>
-          </div>
 
-          <!-- Message Input Bar (Matching Reference) -->
-          <div class="p-4 border-t border-[#edf2f9] dark:border-[#1e2c40] bg-white dark:bg-[#121e2d]">
-            <form @submit.prevent="sendAdminReply" class="flex items-center gap-3">
-              <!-- Plus Attachment Image Button -->
-              <input
-                ref="adminFileInputRef"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleAdminImageSelect"
-              />
-              <button
-                type="button"
-                @click="triggerAdminFileSelect"
-                class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-[#5c52e9] hover:border-[#5c52e9] flex items-center justify-center flex-shrink-0 transition-colors"
-                title="Attach Image"
-              >
-                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            <!-- Image Attachment Preview Bar -->
+            <div v-if="adminAttachedImagePreview" class="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-t border-indigo-100 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <img :src="adminAttachedImagePreview" class="w-10 h-10 rounded-lg object-cover border border-indigo-200 shadow-2xs" />
+                <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">Image Attached</span>
+              </div>
+              <button @click="removeAdminAttachedImage" class="p-1 rounded-full bg-indigo-200 text-indigo-800 text-xs font-bold hover:bg-indigo-300">
+                ✕
               </button>
+            </div>
 
-              <!-- Rounded Message Input -->
-              <input
-                v-model="replyMessage"
-                type="text"
-                placeholder="Type your message here..."
-                class="flex-1 px-5 py-3 rounded-full bg-slate-50 dark:bg-[#0b1727] border border-slate-200 dark:border-[#1e2c40] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#5c52e9] text-xs font-normal"
-              />
+            <!-- Message Input Bar (Matching Reference) -->
+            <div class="p-4 border-t border-[#edf2f9] dark:border-[#1e2c40] bg-white dark:bg-[#121e2d]">
+              <form @submit.prevent="sendAdminReply" class="flex items-center gap-3">
+                <!-- Plus Attachment Image Button -->
+                <input
+                  ref="adminFileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleAdminImageSelect"
+                />
+                <button
+                  type="button"
+                  @click="triggerAdminFileSelect"
+                  class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-[#5c52e9] hover:border-[#5c52e9] flex items-center justify-center flex-shrink-0 transition-colors"
+                  title="Attach Image"
+                >
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                </button>
 
-              <!-- Emoji Icon -->
-              <button type="button" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </button>
+                <!-- Rounded Message Input -->
+                <input
+                  v-model="replyMessage"
+                  type="text"
+                  placeholder="Type your message here..."
+                  class="flex-1 px-5 py-3 rounded-full bg-slate-50 dark:bg-[#0b1727] border border-slate-200 dark:border-[#1e2c40] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#5c52e9] text-xs font-normal"
+                />
 
-              <!-- Circular Send Arrow Button -->
-              <button
-                type="submit"
-                :disabled="(!replyMessage.trim() && !adminAttachedFile) || sending"
-                class="w-11 h-11 rounded-full bg-[#5c52e9] hover:bg-[#4d43db] text-white flex items-center justify-center transition-all disabled:opacity-40 flex-shrink-0 shadow-md cursor-pointer"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </button>
-            </form>
+                <!-- Emoji Icon -->
+                <button type="button" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+
+                <!-- Circular Send Arrow Button -->
+                <button
+                  type="submit"
+                  :disabled="(!replyMessage.trim() && !adminAttachedFile) || sending"
+                  class="w-11 h-11 rounded-full bg-[#5c52e9] hover:bg-[#4d43db] text-white flex items-center justify-center transition-all disabled:opacity-40 flex-shrink-0 shadow-md cursor-pointer"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </template>
+
+          <!-- ── Closed/Resolved Ticket Banner ─────────────── -->
+          <div v-else class="p-4 border-t border-[#edf2f9] dark:border-[#1e2c40] bg-slate-50 dark:bg-slate-800/40 text-center">
+            <div class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+              <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm font-bold text-emerald-700 dark:text-emerald-300">This support ticket has been resolved and closed.</span>
+            </div>
           </div>
         </template>
 

@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasHashId;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Admin extends Authenticatable
 {
-    use HasApiTokens, HasHashId;
+    use HasApiTokens, HasHashId, SoftDeletes;
 
     protected $guard = 'admin';
 

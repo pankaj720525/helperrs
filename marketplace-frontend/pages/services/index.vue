@@ -192,15 +192,41 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="!loading" class="bg-white rounded-3xl p-16 text-center text-slate-500 border border-slate-200 space-y-3">
-      <svg class="w-12 h-12 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-      <h3 class="font-bold text-slate-900 text-base">No services match your search</h3>
-      <p class="text-xs text-slate-500">Try clearing filters or searching for another term.</p>
-      <button type="button" @click="searchKeyword = ''; selectedCategory = ''; loadServices()" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold" style="color: #ffffff !important;">
-        Reset Search Filters
-      </button>
+    <div v-else-if="!loading" class="sp-empty-animated">
+      <div class="sp-radar-wrap">
+        <div class="sp-radar-ring ring-1" />
+        <div class="sp-radar-ring ring-2" />
+        <div class="sp-radar-ring ring-3" />
+        <div class="sp-empty-icon-box">
+          <svg class="w-10 h-10 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <div class="sp-ping-dot" />
+        </div>
+      </div>
+
+      <div class="sp-empty-content">
+        <h3 class="sp-empty-title">No Services Found Nearby</h3>
+        <p class="sp-empty-tip">
+          No services found within <strong>50 km</strong> radius of <strong>{{ currentLocation.formatted }}</strong> matching your filters.
+        </p>
+
+        <div class="sp-empty-actions">
+          <button type="button" @click="searchKeyword = ''; selectedCategory = ''; loadServices()" class="sp-btn-reset">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Reset Search Filters</span>
+          </button>
+          <button type="button" @click="openModal" class="sp-btn-loc">
+            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>Change Location</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Quick View Modal -->
@@ -248,8 +274,14 @@ const handleSearchSubmit = () => {
 const loadServices = async () => {
   loading.value = true;
   try {
-    const params: any = { per_page: 30 };
+    const params: any = {
+      per_page: 30,
+      lat: currentLocation.value.lat,
+      lng: currentLocation.value.lng,
+      radius: 50,
+    };
     if (selectedCategory.value) params.category_id = selectedCategory.value;
+    if (searchKeyword.value.trim()) params.keyword = searchKeyword.value.trim();
     const data = await api.get<any>('/services', params);
     services.value = data.services || [];
   } catch { }
@@ -278,3 +310,118 @@ onMounted(async () => {
   loadServices();
 });
 </script>
+
+<style scoped>
+.sp-empty-animated {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 2rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+:global(html.dark) .sp-empty-animated {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sp-radar-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.sp-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(178, 5, 55, 0.3);
+  animation: radarPulse 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+.sp-radar-ring.ring-1 { width: 55px; height: 55px; animation-delay: 0s; }
+.sp-radar-ring.ring-2 { width: 85px; height: 85px; animation-delay: 0.8s; }
+.sp-radar-ring.ring-3 { width: 115px; height: 115px; animation-delay: 1.6s; }
+
+@keyframes radarPulse {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.sp-empty-icon-box {
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 1.25rem;
+  background: #fef2f5;
+  border: 1.5px solid #fbc0d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 12px 30px rgba(178, 5, 55, 0.18);
+  animation: floatIcon 3s ease-in-out infinite;
+}
+:global(html.dark) .sp-empty-icon-box {
+  background: rgba(178, 5, 55, 0.25);
+  border-color: rgba(178, 5, 55, 0.5);
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.sp-ping-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f43f5e;
+  border: 2px solid #ffffff;
+  animation: pingDot 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pingDot {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.sp-empty-content { max-width: 32rem; margin: 0 auto; }
+.sp-empty-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; }
+:global(html.dark) .sp-empty-title { color: #f8fafc; }
+.sp-empty-tip { font-size: 0.9375rem; color: #64748b; margin: 0 0 1.5rem; line-height: 1.6; }
+:global(html.dark) .sp-empty-tip { color: #94a3b8; }
+.sp-empty-tip strong { color: #b20537; font-weight: 700; }
+:global(html.dark) .sp-empty-tip strong { color: #f43f5e; }
+
+.sp-empty-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.75rem; }
+
+.sp-btn-reset {
+  padding: 0.75rem 1.25rem; border-radius: 0.75rem;
+  background: #f1f5f9; border: 1.5px solid #cbd5e1; color: #334155;
+  font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+:global(html.dark) .sp-btn-reset { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); color: #f1f5f9; }
+.sp-btn-reset:hover { background: #e2e8f0; color: #0f172a; }
+
+.sp-btn-loc {
+  padding: 0.75rem 1.25rem; border-radius: 0.75rem;
+  background: #fef2f5; border: 1.5px solid #fbc0d0; color: #b20537;
+  font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+:global(html.dark) .sp-btn-loc { background: rgba(178, 5, 55, 0.15); border-color: rgba(178, 5, 55, 0.3); color: #f43f5e; }
+.sp-btn-loc:hover { background: #fde8ed; }
+</style>

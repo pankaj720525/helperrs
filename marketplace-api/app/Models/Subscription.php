@@ -6,10 +6,11 @@ use App\Models\Concerns\HasHashId;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends Model
 {
-    use HasHashId;
+    use HasHashId, SoftDeletes;
 
     protected $fillable = [
         'user_id',

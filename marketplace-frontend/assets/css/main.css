@@ -208,7 +208,6 @@ html.light .border-white\/10 {
 html.light input,
 html.light textarea,
 html.light select {
-  background-color: rgba(0, 0, 0, 0.04) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   color: #0F172A !important;
 }

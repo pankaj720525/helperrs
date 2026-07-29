@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -40,8 +41,11 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name'   => ['sometimes', 'string', 'max:255'],
-            'phone'  => ['nullable', 'string', 'max:20'],
+            'phone'  => ['nullable', 'string', 'regex:/^[0-9\-\s\+]{10,15}$/', Rule::unique('users', 'phone')->ignore($user->id)],
             'avatar' => ['nullable', 'image', 'max:2048'],
+        ], [
+            'phone.regex'  => 'Please enter a valid 10-digit numeric phone number.',
+            'phone.unique' => 'This phone number is already registered with another account.',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -121,7 +125,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'current_password' => ['required', 'string'],
-            'new_password'     => ['required', 'string', 'min:8'],
+            'new_password'     => ['required', 'string', Password::min(8)->letters()->numbers()->symbols()],
         ]);
 
         if (!Hash::check($validated['current_password'], $user->password)) {

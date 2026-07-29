@@ -147,6 +147,12 @@
                     </svg>
                     <span>{{ t('dashboard') }}</span>
                   </NuxtLink>
+                  <NuxtLink to="/dashboard/subscription" class="user-dropdown-item">
+                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Upgrade Plan & Subscription</span>
+                  </NuxtLink>
                   <NuxtLink to="/chats" class="user-dropdown-item">
                     <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -182,12 +188,6 @@
               <NuxtLink to="/register" class="register-btn" style="color: #ffffff !important;">{{ t('register') }}</NuxtLink>
             </template>
 
-            <!-- Mobile menu toggle -->
-            <button @click="mobileOpen = !mobileOpen" class="mobile-toggle lg:hidden">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="mobileOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"/>
-              </svg>
-            </button>
           </div>
 
         </div>
@@ -345,7 +345,7 @@ const execHeaderSearch = () => {
 :global(html.dark) .top-bar { background: #090d16; color: #94a3b8; border-bottom-color: rgba(255,255,255,0.06); }
 
 .top-bar-inner {
-  max-width: 80rem; margin: 0 auto; padding: 0.4rem 1.25rem;
+  max-width: 110rem; margin: 0 auto; padding: 0.4rem 1.25rem;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
 }
 .top-bar-left { display: flex; align-items: center; gap: 0.75rem; }
@@ -372,7 +372,7 @@ const execHeaderSearch = () => {
   border-bottom-color: rgba(255,255,255,0.08);
   box-shadow: none;
 }
-.nav-inner { max-width: 80rem; margin: 0 auto; padding: 0 1.25rem; }
+.nav-inner { max-width: 110rem; margin: 0 auto; padding: 0 1.25rem; }
 .nav-row   { display: flex; align-items: center; justify-content: space-between; height: 4.25rem; gap: 1rem; }
 
 /* ── Logo ────────────────────────────────────────────── */
@@ -476,7 +476,7 @@ const execHeaderSearch = () => {
   background: rgba(10, 16, 30, 0.95); border-top-color: rgba(255,255,255,0.05);
 }
 .sub-nav-inner {
-  max-width: 80rem; margin: 0 auto; padding: 0.375rem 1.25rem;
+  max-width: 110rem; margin: 0 auto; padding: 0.375rem 1.25rem;
   display: flex; align-items: center; gap: 0.75rem; overflow-x: auto;
   scrollbar-width: none;
 }

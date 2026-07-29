@@ -41,45 +41,43 @@
           </p>
 
           <!-- Main Hero Search Bar -->
-          <div class="glass rounded-2xl p-3 max-w-3xl mx-auto shadow-xl animate-fade-up" style="animation-delay: 0.2s">
-            <form @submit.prevent="handleHeroSearch" class="flex flex-col sm:flex-row gap-3">
-              <!-- Location Indicator inside Search -->
-              <button type="button" @click="openModal" class="hero-search-loc-btn flex-shrink-0 px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 hover:bg-slate-50 flex items-center justify-between sm:justify-start gap-2">
-                <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  {{ currentLocation.city }}
-                </span>
-                <span class="text-slate-400">▼</span>
-              </button>
+          <div class="max-w-3xl mx-auto animate-fade-up" style="animation-delay: 0.2s">
+            <form @submit.prevent="handleHeroSearch" class="hero-search-bar flex items-center">
+              <!-- Search Icon -->
+              <span class="pl-5 pr-3 flex-shrink-0">
+                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </span>
 
-              <!-- Category Select -->
-              <select v-model="searchCategory" class="hero-search-select flex-shrink-0 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:border-primary/50 text-sm font-medium">
-                <option value="">{{ t('allCategoriesOpt') }}</option>
-                <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
-              </select>
-
-              <!-- Keyword input -->
+              <!-- Keyword Input -->
               <input
                 v-model="searchKeyword"
                 type="text"
                 :placeholder="t('searchPlaceholder')"
-                class="hero-search-input flex-1 min-w-0 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 text-sm font-medium focus:outline-none focus:border-primary/50"
+                class="hero-search-input flex-1 min-w-0 px-2 py-4 bg-transparent border-none text-sm font-medium focus:outline-none"
               />
 
-              <!-- Submit -->
-              <button type="submit" class="flex-shrink-0 px-8 py-3 rounded-xl gradient-primary text-white font-bold text-sm hover:shadow-glow transition-all whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer" style="color: #ffffff !important;">
+              <!-- Divider -->
+              <span class="hero-divider w-px h-9 flex-shrink-0"></span>
+
+              <!-- Category Select -->
+              <select v-model="searchCategory" class="hero-search-select flex-shrink-0 px-4 py-3 bg-transparent border-none focus:outline-none text-sm font-semibold cursor-pointer">
+                <option value="">{{ t('allCategoriesOpt') }}</option>
+                <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
+              </select>
+
+              <!-- Submit Button -->
+              <button type="submit" class="hero-search-btn flex-shrink-0 px-7 py-3.5 m-1.5 rounded-xl text-white font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer" style="color: #ffffff !important;">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <span class="text-white font-bold">{{ t('findServices') }}</span>
+                <span class="text-white font-bold hidden sm:inline">{{ t('findServices') }}</span>
               </button>
             </form>
 
             <!-- Quick Chips -->
-            <div class="flex items-center justify-center gap-2 flex-wrap mt-3 pt-3 border-t border-slate-200/80 text-xs text-slate-600">
+            <div class="flex items-center justify-center gap-2 flex-wrap mt-4 text-xs text-slate-600">
               <span class="font-bold text-slate-500">{{ t('trendingLabel') }}:</span>
               <button
                 v-for="chip in ['AC Service', 'Plumber', 'Electrician', 'Deep Cleaning', 'Painting']"
@@ -132,7 +130,7 @@
         <div class="glass rounded-2xl p-6 border border-slate-200 hover:border-primary/40 transition-all flex items-center gap-4 group">
           <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform flex-shrink-0">
             <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3h12M6 8h12M6 3v10a4 4 0 004 4h2l5 5M6 13h9"/>
             </svg>
           </div>
           <div>
@@ -296,44 +294,134 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.hero-search-loc-btn,
-.hero-search-select,
-.hero-search-input {
+/* ── Unified Hero Search Bar ──────────────────────────── */
+.hero-search-bar {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.25s, box-shadow 0.25s;
+  overflow: hidden;
+}
+.hero-search-bar:focus-within {
+  border-color: #f43f5e;
+  box-shadow: 0 8px 40px rgba(244, 63, 94, 0.12), 0 2px 8px rgba(244, 63, 94, 0.06);
+}
+:global(html.dark) .hero-search-bar {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+:global(html.dark) .hero-search-bar:focus-within {
+  border-color: #f43f5e;
+  box-shadow: 0 8px 40px rgba(244, 63, 94, 0.15);
+}
+
+/* ── Search Input ────────────────────────────────────── */
+.hero-search-input {
   color: #0f172a !important;
-  height: 2.875rem;
+  background-color: transparent !important;
+  border-color: transparent !important;
 }
-.hero-search-loc-btn:hover {
-  background-color: #f8fafc !important;
+.hero-search-input::placeholder {
+  color: #94a3b8 !important;
 }
-.dark .hero-search-loc-btn,
-.dark .hero-search-select,
-.dark .hero-search-input {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
+:global(html.dark) .hero-search-input {
   color: #f8fafc !important;
 }
-.dark .hero-search-loc-btn:hover {
-  background-color: #334155 !important;
-}
-.dark .hero-search-input::placeholder {
+:global(html.dark) .hero-search-input::placeholder {
   color: #64748b !important;
 }
+
+/* ── Divider ─────────────────────────────────────────── */
+.hero-divider {
+  background-color: #cbd5e1;
+}
+:global(html.dark) .hero-divider {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Category Select ─────────────────────────────────── */
+.hero-search-select {
+  color: #1e293b !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 2rem !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23475569'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
+}
+:global(html.dark) .hero-search-select {
+  color: #cbd5e1 !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+}
+.hero-search-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+:global(html.dark) .hero-search-select option {
+  background: #1e293b !important;
+  color: #fff !important;
+}
+
+/* ── Search Button ───────────────────────────────────── */
+.hero-search-btn {
+  background: linear-gradient(135deg, #B20537 0%, #D4064A 50%, #F43F5E 100%);
+  box-shadow: 0 4px 16px rgba(178, 5, 55, 0.3);
+}
+.hero-search-btn:hover {
+  box-shadow: 0 6px 24px rgba(178, 5, 55, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Location Announcement Pill ──────────────────────── */
 .location-announcement-pill {
-  background-color: rgba(255, 255, 255, 0.8) !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
   border-color: #e2e8f0 !important;
   color: #334155 !important;
 }
 .location-announcement-pill strong {
   color: #0f172a !important;
 }
-.dark .location-announcement-pill {
+:global(html.dark) .location-announcement-pill {
   background-color: rgba(30, 41, 59, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #94a3b8 !important;
 }
-.dark .location-announcement-pill strong {
+:global(html.dark) .location-announcement-pill strong {
   color: #ffffff !important;
+}
+
+/* ── Mobile Responsive ───────────────────────────────── */
+@media (max-width: 640px) {
+  .hero-search-bar {
+    flex-wrap: wrap;
+    border-radius: 0.875rem;
+  }
+  .hero-search-input {
+    width: 100%;
+    padding: 0.875rem 1rem !important;
+  }
+  .hero-divider {
+    display: none;
+  }
+  .hero-search-select {
+    width: 100%;
+    border-top: 1px solid #e2e8f0;
+    padding: 0.875rem 2rem 0.875rem 1rem !important;
+  }
+  .hero-search-btn {
+    width: 100%;
+    justify-content: center;
+    margin: 0.375rem !important;
+    border-radius: 0.75rem;
+  }
+  .hero-search-btn span {
+    display: inline !important;
+  }
 }
 </style>

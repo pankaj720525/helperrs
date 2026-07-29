@@ -15,7 +15,7 @@ class GeoSearchService
      * @param array $filters Additional filters (category_id, etc.)
      * @return \Illuminate\Database\Query\Builder
      */
-    public function searchNearby(float $latitude, float $longitude, int $radiusKm = 25, array $filters = [])
+    public function searchNearby(float $latitude, float $longitude, int $radiusKm = 50, array $filters = [])
     {
         $query = DB::table('worker_profiles')
             ->join('users', 'worker_profiles.user_id', '=', 'users.id')

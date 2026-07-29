@@ -141,14 +141,13 @@ class SupportChatController extends Controller
 
         $chat->update(['status' => 'closed']);
 
-        AdminAuditLog::logAction(
+        AdminAuditLog::record(
             $admin->id,
             'support_chat_closed',
             'Chat',
             $chat->id,
             ['status' => 'open'],
-            ['status' => 'closed'],
-            $request->ip()
+            ['status' => 'closed']
         );
 
         return response()->json([

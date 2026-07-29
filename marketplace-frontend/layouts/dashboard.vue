@@ -4,8 +4,8 @@
     <PublicNavbar />
 
     <!-- Dashboard Sidebar + Slot Container -->
-    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-4 sm:py-8">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+    <main class="flex-1 max-w-[1760px] mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
         <!-- ── Mobile Menu Toggle Bar (Mobile Only) ──────────── -->
         <div class="lg:hidden bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
@@ -31,7 +31,7 @@
 
         <!-- ── Persistent Left Sidebar Navigation ──────────── -->
         <aside
-          class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm lg:sticky lg:top-24 transition-all"
+          class="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm lg:sticky lg:top-24 transition-all"
           :class="[ mobileNavOpen ? 'block' : 'hidden lg:block' ]"
         >
           <!-- User Profile Brief -->
@@ -127,6 +127,20 @@
               <span>{{ t('sidebarProfile') }}</span>
             </NuxtLink>
 
+            <!-- 6. Subscription & Upgrade -->
+            <NuxtLink
+              to="/dashboard/subscription"
+              @click="mobileNavOpen = false"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all"
+              :class="route.path === '/dashboard/subscription' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'"
+              :style="route.path === '/dashboard/subscription' ? 'color: #ffffff !important;' : ''"
+            >
+              <svg class="w-4 h-4" :class="route.path === '/dashboard/subscription' ? 'text-white' : 'text-slate-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>Subscription & Upgrade</span>
+            </NuxtLink>
+
             <!-- 6. Notifications -->
             <NuxtLink
               to="/dashboard/notifications"
@@ -156,7 +170,7 @@
         </aside>
 
         <!-- ── Main Dashboard Content Slot ────────────────── -->
-        <main class="lg:col-span-3 min-w-0">
+        <main class="lg:col-span-9 min-w-0">
           <slot />
         </main>
 

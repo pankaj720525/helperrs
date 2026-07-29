@@ -19,6 +19,8 @@ class WorkerProfileResource extends JsonResource
             'email_public'  => $this->when($request->user(), $this->email_public),
             'specialties'   => $this->specialties,
             'is_available'  => $this->is_available,
+            'latitude'      => $this->latitude,
+            'longitude'     => $this->longitude,
             'user'          => new UserResource($this->whenLoaded('user')),
             'created_at'    => $this->created_at?->toISOString(),
         ];

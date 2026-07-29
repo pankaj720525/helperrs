@@ -29,7 +29,11 @@ use Illuminate\Support\Facades\Route;
 // Authentication
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register/send-otp', [AuthController::class, 'sendRegisterOtp']);
+    Route::post('/register/verify-otp', [AuthController::class, 'verifyRegisterOtp']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/forgot-password/send-otp', [AuthController::class, 'sendForgotOtp']);
+    Route::post('/forgot-password/reset', [AuthController::class, 'resetPasswordWithOtp']);
 });
 
 // Public Catalog (no auth, but hashid decryption applied to routes with {id})
@@ -54,7 +58,9 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureActiveUser::class,
     // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
+    Route::get('/auth/profile', [ProfileController::class, 'show']);
     Route::put('/auth/profile', [ProfileController::class, 'update']);
+    Route::post('/auth/worker-profile', [ProfileController::class, 'workerProfile']);
     Route::put('/auth/password', [ProfileController::class, 'updatePassword']);
 
     // Profile
