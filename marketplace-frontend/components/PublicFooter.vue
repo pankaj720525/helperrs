@@ -217,8 +217,14 @@ const handleSubscribe = () => {
 :global(html.dark) .ft-banner { background: rgba(30, 41, 59, 0.5); border-bottom-color: rgba(255,255,255,0.06); }
 
 .ft-banner-inner {
-  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
+  width: 90% !important;
+  max-width: 90% !important;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .ft-banner-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
 }
 @media (max-width: 1024px) { .ft-banner-inner { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .ft-banner-inner { grid-template-columns: 1fr; } }
@@ -239,8 +245,14 @@ const handleSubscribe = () => {
 /* ── Main Columns ────────────────────────────────── */
 .ft-main { padding: 3.5rem 0; }
 .ft-main-inner {
-  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
+  width: 90% !important;
+  max-width: 90% !important;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr; gap: 2rem;
+}
+@media (min-width: 640px) {
+  .ft-main-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
 }
 @media (max-width: 1200px) { .ft-main-inner { grid-template-columns: 1fr 1fr 1fr; } }
 @media (max-width: 640px) { .ft-main-inner { grid-template-columns: 1fr; } }
@@ -322,8 +334,14 @@ const handleSubscribe = () => {
 .ft-bottom { background: #ffffff; border-top: 1px solid #e2e8f0; padding: 1.5rem 0; }
 :global(html.dark) .ft-bottom { background: #05080f; border-top-color: rgba(255,255,255,0.06); }
 .ft-bottom-inner {
-  max-width: 110rem; margin: 0 auto; padding: 0 1.25rem;
+  width: 90% !important;
+  max-width: 90% !important;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: flex; flex-direction: column; gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .ft-bottom-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
 }
 
 .ft-active-loc {

@@ -1,5 +1,11 @@
 <template>
-  <div class="auth-page-wrap">
+  <div class="auth-page-outer">
+    <!-- Decorative background ambient glow shapes -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <div class="auth-page-wrap relative z-10">
     <div class="auth-header">
       <h1 class="auth-title">Welcome Back</h1>
       <p class="auth-sub">Login to your account with Email or Phone Number</p>
@@ -80,6 +86,7 @@
       </p>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -138,25 +145,70 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.auth-page-wrap { max-width: 28rem; margin: 0 auto; padding: 4rem 1rem; }
+.auth-page-outer {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.05) 0%, rgba(248, 250, 252, 1) 70%);
+}
+:global(html.dark) .auth-page-outer {
+  background: radial-gradient(circle at 50% 0%, rgba(178, 5, 55, 0.15) 0%, rgba(15, 23, 42, 1) 75%);
+}
+
+.bg-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+.bg-glow-1 {
+  top: -10%;
+  left: 20%;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.25) 0%, rgba(178, 5, 55, 0.05) 70%);
+}
+.bg-glow-2 {
+  bottom: 0;
+  right: 15%;
+  width: 25rem;
+  height: 25rem;
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.15) 0%, rgba(244, 63, 94, 0) 70%);
+}
+.bg-glow-3 {
+  top: 40%;
+  left: -5%;
+  width: 20rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.12) 0%, rgba(244, 63, 94, 0) 70%);
+}
+:global(html.dark) .bg-glow { opacity: 0.45; }
+
+.auth-page-wrap { width: 100%; max-width: 28rem; margin: 0 auto; padding: 3rem 1rem; }
 .auth-header { text-align: center; margin-bottom: 2rem; }
-.auth-title { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; }
+.auth-title { font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
 :global(html.dark) .auth-title { color: #f8fafc; }
 .auth-sub { font-size: 0.875rem; font-weight: 500; color: #64748b; margin: 0; }
 :global(html.dark) .auth-sub { color: #94a3b8; }
 
 .auth-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 1.5rem;
-  padding: 2rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-  transition: all 0.2s ease-in-out;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transition: all 0.25s ease;
 }
 :global(html.dark) .auth-card {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.75);
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
 .auth-label { display: block; font-size: 0.8125rem; font-weight: 700; color: #334155; margin-bottom: 0.375rem; }
@@ -164,23 +216,23 @@ const handleLogin = async () => {
 
 .auth-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.8125rem 1rem;
   border-radius: 0.75rem;
-  background: #f8fafc;
+  background: #ffffff;
   border: 1.5px solid #cbd5e1;
   color: #0f172a;
   font-size: 0.875rem;
   font-weight: 500;
   outline: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 :global(html.dark) .auth-input {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.6);
   border-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 .auth-input::placeholder { color: #94a3b8; }
-.auth-input:focus { border-color: #b20537; box-shadow: 0 0 0 3px rgba(178, 5, 55, 0.12); }
+.auth-input:focus { border-color: #b20537; box-shadow: 0 0 0 4px rgba(178, 5, 55, 0.12); }
 
 .auth-input-invalid {
   border-color: #f43f5e !important;
@@ -206,7 +258,7 @@ const handleLogin = async () => {
   box-shadow: 0 4px 14px rgba(178, 5, 55, 0.3);
 }
 .auth-btn-submit:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(178, 5, 55, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(178, 5, 55, 0.45);
+  transform: translateY(-1.5px);
 }
 </style>

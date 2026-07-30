@@ -24,6 +24,14 @@
       </div>
     </Transition>
 
+    <!-- ── Top Progress Loading Bar (Zepto Style) ──── -->
+    <NuxtLoadingIndicator
+      :color="'linear-gradient(to right, #B20537, #D4064A, #F43F5E, #F472B6)'"
+      :height="4"
+      :duration="2000"
+      :throttle="0"
+    />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -156,10 +164,15 @@ html.dark .preloader-dot {
 
 /* ── Fade Out Transition ─────────────────────────────── */
 .preloader-fade-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .preloader-fade-leave-to {
   opacity: 0;
-  transform: scale(1.05);
+}
+
+/* ── Top Loading Indicator Bar Glow ───────────────────── */
+.nuxt-loading-indicator {
+  box-shadow: 0 0 10px rgba(178, 5, 55, 0.7), 0 0 5px rgba(244, 63, 94, 0.5) !important;
+  z-index: 999999 !important;
 }
 </style>

@@ -1,29 +1,6 @@
 <template>
   <header class="public-header sticky top-0 z-50">
 
-    <!-- ── Top Announcement Bar ────────────────────────── -->
-    <div class="top-bar">
-      <div class="top-bar-inner">
-        <div class="top-bar-left">
-          <span class="tb-badge">
-            <svg class="w-3.5 h-3.5 inline mr-1 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            {{ currentLocation.city }} ({{ currentLocation.pincode }})
-          </span>
-          <span class="tb-msg hidden sm:inline">Servicing <strong>{{ currentLocation.formatted }}</strong> & 50+ Cities across India</span>
-        </div>
-        <div class="top-bar-right">
-          <span class="tb-phone">
-            <svg class="w-3.5 h-3.5 inline mr-1 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-            </svg>
-            24/7 Support: 1800-123-4567
-          </span>
-        </div>
-      </div>
-    </div>
 
     <!-- ── Main Navbar ─────────────────────────────────── -->
     <nav class="public-nav">
@@ -60,7 +37,7 @@
             </svg>
           </button>
 
-          <!-- Header Search Bar -->
+          <!-- Header Search Bar (Visible on Laptop & Desktop screens >= 1024px) -->
           <div class="header-search hidden lg:flex">
             <select v-model="headerCategory" class="hs-cat-select">
               <option value="">All Categories</option>
@@ -83,8 +60,8 @@
           <!-- Right Side Actions -->
           <div class="nav-right">
 
-            <!-- Language Switcher -->
-            <div class="lang-wrap" ref="langDropdownRef">
+            <!-- Language Switcher (Visible on desktop screens >= 1024px) -->
+            <div class="lang-wrap hidden lg:block" ref="langDropdownRef">
               <button
                 type="button"
                 @click="langOpen = !langOpen"
@@ -118,7 +95,7 @@
 
             <!-- Authenticated User -->
             <template v-if="userStore.isAuthenticated">
-              <NuxtLink to="/chats" class="nav-link hidden md:inline-flex items-center gap-1">
+              <NuxtLink to="/chats" class="nav-link hidden lg:inline-flex items-center gap-1">
                 <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
@@ -126,12 +103,12 @@
               </NuxtLink>
 
               <!-- Hover User Dropdown Menu -->
-              <div class="user-menu-wrap">
+              <div class="user-menu-wrap hidden lg:block">
                 <button type="button" class="user-menu-trigger">
                   <div class="avatar-bubble">{{ userStore.user?.name?.charAt(0)?.toUpperCase() }}</div>
                   <span class="user-menu-name hidden lg:inline">{{ userStore.user?.name }}</span>
                   <svg class="user-menu-arrow" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                   </svg>
                 </button>
                 <div class="user-dropdown-menu">
@@ -184,9 +161,24 @@
 
             <!-- Guest -->
             <template v-else>
-              <NuxtLink to="/login"    class="nav-link hidden sm:inline">{{ t('login') }}</NuxtLink>
+              <NuxtLink to="/login" class="header-login-btn hidden sm:inline-flex">{{ t('login') }}</NuxtLink>
               <NuxtLink to="/register" class="register-btn" style="color: #ffffff !important;">{{ t('register') }}</NuxtLink>
             </template>
+
+            <!-- Mobile Menu Toggle Button (Visible ONLY on responsive screens < 1024px) -->
+            <button
+              type="button"
+              @click="mobileOpen = !mobileOpen"
+              class="mobile-toggle lg:hidden p-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              :aria-label="mobileOpen ? 'Close Menu' : 'Open Menu'"
+            >
+              <svg v-if="!mobileOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
 
           </div>
 
@@ -275,6 +267,12 @@
               </svg>
             </button>
           </template>
+          <template v-else>
+            <div class="pt-2 flex flex-col gap-2">
+              <NuxtLink to="/login" class="mobile-link text-center border border-slate-300 rounded-xl py-2.5" @click="mobileOpen = false">{{ t('login') }}</NuxtLink>
+              <NuxtLink to="/register" class="mobile-link text-center bg-[#B20537] text-white font-bold rounded-xl py-2.5" style="color: #ffffff !important;" @click="mobileOpen = false">{{ t('register') }}</NuxtLink>
+            </div>
+          </template>
         </div>
       </Transition>
     </nav>
@@ -300,6 +298,7 @@ const headerCategory  = ref('');
 const categories      = ref<any[]>([]);
 
 onMounted(async () => {
+  userStore.loadFromStorage();
   initTheme();
   initLang();
   initLocation();
@@ -345,8 +344,11 @@ const execHeaderSearch = () => {
 :global(html.dark) .top-bar { background: #090d16; color: #94a3b8; border-bottom-color: rgba(255,255,255,0.06); }
 
 .top-bar-inner {
-  max-width: 110rem; margin: 0 auto; padding: 0.4rem 1.25rem;
+  max-width: 80rem; margin: 0 auto; padding: 0.4rem 1rem;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+@media (min-width: 640px) {
+  .top-bar-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
 }
 .top-bar-left { display: flex; align-items: center; gap: 0.75rem; }
 .tb-badge {
@@ -372,8 +374,16 @@ const execHeaderSearch = () => {
   border-bottom-color: rgba(255,255,255,0.08);
   box-shadow: none;
 }
-.nav-inner { max-width: 110rem; margin: 0 auto; padding: 0 1.25rem; }
-.nav-row   { display: flex; align-items: center; justify-content: space-between; height: 4.25rem; gap: 1rem; }
+.nav-inner {
+  width: 90% !important;
+  max-width: 90% !important;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+@media (min-width: 640px) {
+  .nav-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+.nav-row   { display: flex; align-items: center; justify-content: space-between; height: 4.25rem; gap: 1.25rem; }
 
 /* ── Logo ────────────────────────────────────────────── */
 .nav-logo  { display: flex; align-items: center; gap: 0.625rem; text-decoration: none; flex-shrink: 0; }
@@ -396,6 +406,10 @@ const execHeaderSearch = () => {
   color: #0f172a; cursor: pointer; text-align: left; transition: all 0.2s;
   flex-shrink: 0;
 }
+@media (max-width: 480px) {
+  .nav-loc-pill { padding: 0.35rem 0.5rem; }
+  .nav-loc-label { display: none; }
+}
 :global(html.dark) .nav-loc-pill {
   background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: #f8fafc;
 }
@@ -411,11 +425,24 @@ const execHeaderSearch = () => {
 :global(html.dark) .nav-loc-value { color: #f8fafc; }
 .nav-loc-arrow { width: 0.875rem; height: 0.875rem; color: #64748b; flex-shrink: 0; }
 
-/* ── Croma Search Bar ────────────────────────────────── */
+/* ── Search Bar & Responsive Mobile Toggle Rules ── */
 .header-search {
-  flex: 1; max-width: 32rem; height: 2.625rem; border-radius: 0.75rem;
+  display: none !important;
+  flex: 1; max-width: 36rem; height: 2.625rem; border-radius: 0.75rem;
   background: #f8fafc; border: 1.5px solid #cbd5e1;
-  display: flex; align-items: center; overflow: hidden; transition: border-color 0.2s;
+  align-items: center; overflow: hidden; transition: border-color 0.2s;
+}
+.mobile-toggle {
+  display: flex !important;
+}
+
+@media (min-width: 1024px) {
+  .header-search {
+    display: flex !important;
+  }
+  .mobile-toggle {
+    display: none !important;
+  }
 }
 :global(html.dark) .header-search {
   background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12);
@@ -425,14 +452,14 @@ const execHeaderSearch = () => {
 .hs-cat-select {
   height: 100%; padding: 0 0.75rem; background: transparent !important; border: none !important;
   border-right: 1px solid #cbd5e1 !important; color: #334155;
-  font-size: 0.8125rem; font-weight: 500; outline: none; cursor: pointer; max-width: 8.5rem;
+  font-size: 0.8125rem; font-weight: 500; outline: none; cursor: pointer; max-width: 8.5rem; flex-shrink: 0;
 }
 :global(html.dark) .hs-cat-select { border-right-color: rgba(255,255,255,0.1) !important; color: #cbd5e1 !important; }
 .hs-cat-select option { background: #ffffff; color: #0f172a; }
 :global(html.dark) .hs-cat-select option { background: #1e293b !important; color: #fff !important; }
 
 .hs-input {
-  flex: 1; height: 100%; padding: 0 0.875rem; background: transparent !important; border: none !important;
+  flex: 1; min-width: 0; height: 100%; padding: 0 0.875rem; background: transparent !important; border: none !important;
   color: #0f172a; font-size: 0.875rem; outline: none; font-weight: 500;
 }
 :global(html.dark) .hs-input { color: #fff !important; }
@@ -441,7 +468,7 @@ const execHeaderSearch = () => {
 .hs-btn {
   width: 2.625rem; height: 100%; background: #B20537; border: none;
   color: #fff; cursor: pointer; transition: background 0.15s;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .hs-btn:hover { background: #8A042B; }
 .hs-btn svg,
@@ -450,7 +477,7 @@ const execHeaderSearch = () => {
 }
 
 /* ── Right Cluster ───────────────────────────────────── */
-.nav-right { display: flex; align-items: center; gap: 0.625rem; flex-shrink: 0; }
+.nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
 
 .wish-pill {
   position: relative; display: flex; align-items: center; justify-content: center;
@@ -476,9 +503,15 @@ const execHeaderSearch = () => {
   background: rgba(10, 16, 30, 0.95); border-top-color: rgba(255,255,255,0.05);
 }
 .sub-nav-inner {
-  max-width: 110rem; margin: 0 auto; padding: 0.375rem 1.25rem;
+  width: 90% !important;
+  max-width: 90% !important;
+  margin: 0 auto;
+  padding: 0.375rem 1rem;
   display: flex; align-items: center; gap: 0.75rem; overflow-x: auto;
   scrollbar-width: none;
+}
+@media (min-width: 640px) {
+  .sub-nav-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
 }
 .sub-nav-inner::-webkit-scrollbar { display: none; }
 
@@ -553,6 +586,33 @@ const execHeaderSearch = () => {
 .nav-link { font-size: 0.875rem; color: #475569; text-decoration: none; transition: color 0.15s; font-weight: 600; }
 :global(html.dark) .nav-link { color: #94a3b8; }
 .nav-link:hover { color: #b20537; }
+.header-login-btn {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #334155;
+  text-decoration: none;
+  padding: 0.45rem 1.125rem;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+:global(html.dark) .header-login-btn {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.header-login-btn:hover {
+  color: #b20537;
+  background: #fef2f5;
+  border-color: rgba(178, 5, 55, 0.3);
+  box-shadow: 0 4px 12px rgba(178, 5, 55, 0.08);
+}
+:global(html.dark) .header-login-btn:hover {
+  color: #f9a8bd;
+  background: rgba(178, 5, 55, 0.18);
+  border-color: rgba(178, 5, 55, 0.5);
+}
 .avatar-bubble {
   width: 2.125rem; height: 2.125rem; border-radius: 9999px;
   background: linear-gradient(135deg,#B20537,#F43F5E);
@@ -562,10 +622,15 @@ const execHeaderSearch = () => {
 .logout-btn { font-size: 0.875rem; color: #64748b; background: none; border: none; cursor: pointer; font-weight: 600; }
 .logout-btn:hover { color: #ef4444; }
 .register-btn {
-  padding: 0.4rem 1rem; border-radius: 0.75rem;
+  padding: 0.45rem 1.25rem; border-radius: 0.75rem;
   background: linear-gradient(135deg,#B20537,#D4064A,#F43F5E);
   color: #ffffff !important; font-size: 0.875rem; font-weight: 700; text-decoration: none;
-  box-shadow: 0 2px 10px rgba(178,5,55,0.3);
+  box-shadow: 0 4px 14px rgba(178,5,55,0.35);
+  transition: all 0.2s ease;
+}
+.register-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(178,5,55,0.45);
 }
 .mobile-toggle { color: #475569; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 

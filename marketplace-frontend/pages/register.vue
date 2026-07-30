@@ -1,144 +1,304 @@
 <template>
-  <div class="auth-page-wrap">
-    
-    <!-- STEP 1: Enter Registration Details -->
-    <div v-if="step === 1" class="auth-card-container">
-      <div class="auth-header">
-        <h1 class="auth-title">Create Account</h1>
-        <p class="auth-sub">Join our local service marketplace</p>
+  <div class="auth-page-outer">
+    <!-- Premium subtle mesh grid and modern glow circles -->
+    <div class="bg-grid-pattern"></div>
+    <div class="bg-ambient bg-ambient-top"></div>
+    <div class="bg-ambient bg-ambient-bottom"></div>
+
+    <div class="auth-page-wrap relative z-10">
+      
+      <!-- STEP 1: Enter Registration Details -->
+      <div v-if="step === 1" class="auth-card-container">
+        <div class="auth-header">
+          <h1 class="auth-title">Fill the form to create your Account</h1>
+        </div>
+
+        <form @submit.prevent="handleSendOtp" class="space-y-4" novalidate>
+
+          <!-- Full Name -->
+          <div>
+            <label class="auth-label">Full Name <span class="text-rose-600">*</span></label>
+            <input
+              v-model="form.name"
+              type="text"
+              placeholder="Full Name"
+              class="auth-input"
+              :class="{ 'auth-input-invalid': fieldErrors.name }"
+            />
+            <p v-if="fieldErrors.name" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.name }}</p>
+          </div>
+
+          <!-- Email & Phone Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Email -->
+            <div>
+              <label class="auth-label">Email <span class="text-rose-600">*</span></label>
+              <input
+                v-model="form.email"
+                type="email"
+                placeholder="Email"
+                class="auth-input"
+                :class="{ 'auth-input-invalid': fieldErrors.email }"
+              />
+              <p v-if="fieldErrors.email" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.email }}</p>
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label class="auth-label">Phone Number <span class="text-rose-600">*</span></label>
+              <input
+                v-model="form.phone"
+                type="tel"
+                placeholder="Phone Number"
+                class="auth-input"
+                :class="{ 'auth-input-invalid': fieldErrors.phone }"
+              />
+              <p v-if="fieldErrors.phone" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.phone }}</p>
+            </div>
+          </div>
+
+          <!-- Password & Confirm Password Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Password with Eye Toggle & Requirements Popover -->
+            <div class="relative">
+              <label class="auth-label">Password <span class="text-rose-600">*</span></label>
+              <div class="relative flex items-center">
+                <input
+                  v-model="form.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="Password"
+                  class="auth-input pr-11"
+                  :class="{ 'auth-input-invalid': fieldErrors.password }"
+                  @focus="showPasswordPopover = true"
+                  @blur="showPasswordPopover = false"
+                />
+                <button
+                  type="button"
+                  @click="showPassword = !showPassword"
+                  class="absolute right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer z-10"
+                  :title="showPassword ? 'Hide password' : 'Show password'"
+                >
+                  <svg v-if="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+              <p v-if="fieldErrors.password" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.password }}</p>
+
+              <!-- Password Requirement Floating Tooltip Popover -->
+              <Transition name="popover-fade">
+                <div
+                  v-if="isPopoverVisible"
+                  class="password-req-popover"
+                >
+                  <div class="popover-arrow"></div>
+                  <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <h5 class="text-xs font-extrabold text-slate-900 dark:text-white" style="color: #0f172a !important;">
+                      Password must meet requirements:
+                    </h5>
+                    <button
+                      type="button"
+                      @click="dismissPopover"
+                      class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 p-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      title="Close"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <ul class="space-y-1.5 text-[11px] font-semibold">
+                    <li class="flex items-center gap-2" :class="pwdChecks.lowercase ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.lowercase" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>At least one lowercase letter</span>
+                    </li>
+                    <li class="flex items-center gap-2" :class="pwdChecks.uppercase ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.uppercase" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>At least one capital letter</span>
+                    </li>
+                    <li class="flex items-center gap-2" :class="pwdChecks.number ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.number" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>At least one number</span>
+                    </li>
+                    <li class="flex items-center gap-2" :class="pwdChecks.minLen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.minLen" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>Be at least 8 characters</span>
+                    </li>
+                    <li class="flex items-center gap-2" :class="pwdChecks.special ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.special" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>At least one special character</span>
+                    </li>
+                    <li class="flex items-center gap-2" :class="pwdChecks.notMatchUser ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+                      <svg v-if="pwdChecks.notMatchUser" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <svg v-else class="w-3.5 h-3.5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>Not to be same as email & name</span>
+                    </li>
+                  </ul>
+                </div>
+              </Transition>
+            </div>
+
+            <!-- Confirm Password with Eye Toggle -->
+            <div>
+              <label class="auth-label">Confirm Password <span class="text-rose-600">*</span></label>
+              <div class="relative flex items-center">
+                <input
+                  v-model="form.password_confirmation"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="Confirm Password"
+                  class="auth-input pr-11"
+                  :class="{ 'auth-input-invalid': fieldErrors.password_confirmation }"
+                />
+                <button
+                  type="button"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  class="absolute right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                  :title="showConfirmPassword ? 'Hide password' : 'Show password'"
+                >
+                  <svg v-if="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+              <p v-if="fieldErrors.password_confirmation" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.password_confirmation }}</p>
+            </div>
+          </div>
+
+          <!-- Account Type Selector Cards -->
+          <div class="pt-1">
+            <label class="auth-label-group">Account Type <span class="text-rose-600">*</span></label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Select what type of account you're interested in</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- Buying -->
+              <div
+                @click="form.role = 'user'"
+                class="role-card"
+                :class="{ 'role-card-active': form.role === 'user' }"
+              >
+                <div class="role-icon-box">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="role-title">Buying</h4>
+                  <p class="role-desc">Buying services to grow my business</p>
+                </div>
+              </div>
+
+              <!-- Selling -->
+              <div
+                @click="form.role = 'worker'"
+                class="role-card"
+                :class="{ 'role-card-active': form.role === 'worker' }"
+              >
+                <div class="role-icon-box">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="role-title">Selling</h4>
+                  <p class="role-desc">Selling my services to make money</p>
+                </div>
+              </div>
+
+              <!-- Buying & Selling -->
+              <div
+                @click="form.role = 'both'"
+                class="role-card"
+                :class="{ 'role-card-active': form.role === 'both' }"
+              >
+                <div class="role-icon-box">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="role-title">Buying & Selling</h4>
+                  <p class="role-desc">The best of both worlds</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms Agreement Checkbox -->
+          <div class="pt-2">
+            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold">
+              <input
+                v-model="termsAgreed"
+                type="checkbox"
+                class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+              />
+              <span class="auth-text-dark" style="color: #0f172a !important;">
+                I agree to the
+                <a href="#" @click.prevent class="text-purple-600 font-extrabold hover:underline" style="color: #7c3aed !important;">terms of service</a>
+                <span style="color: #0f172a !important;">and</span>
+                <a href="#" @click.prevent class="text-purple-600 font-extrabold hover:underline" style="color: #7c3aed !important;">privacy policy</a>
+              </span>
+            </label>
+            <p v-if="fieldErrors.terms" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.terms }}</p>
+          </div>
+
+          <!-- General Error -->
+          <p v-if="generalError" class="text-rose-600 text-xs font-semibold p-3 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-200 dark:border-rose-800">{{ generalError }}</p>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            :disabled="loading"
+            class="auth-btn-purple mt-3"
+            style="color: #ffffff !important;"
+          >
+            {{ loading ? 'Creating Account...' : 'Register' }}
+          </button>
+        </form>
+
+        <p class="text-left text-xs font-bold mt-6" style="color: #0f172a !important;">
+          Existing User?
+          <NuxtLink to="/login" class="font-extrabold hover:underline" style="color: #7c3aed !important;">Log in</NuxtLink>
+        </p>
       </div>
-
-      <form @submit.prevent="handleSendOtp" class="space-y-4" novalidate>
-
-        <!-- Full Name -->
-        <div>
-          <label class="auth-label">Full Name <span class="text-rose-600">*</span></label>
-          <input
-            v-model="form.name"
-            type="text"
-            placeholder="John Doe"
-            class="auth-input"
-            :class="{ 'auth-input-invalid': fieldErrors.name }"
-          />
-          <p v-if="fieldErrors.name" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.name }}</p>
-        </div>
-
-        <!-- Email -->
-        <div>
-          <label class="auth-label">Email Address <span class="text-rose-600">*</span></label>
-          <input
-            v-model="form.email"
-            type="email"
-            placeholder="you@example.com"
-            class="auth-input"
-            :class="{ 'auth-input-invalid': fieldErrors.email }"
-          />
-          <p v-if="fieldErrors.email" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.email }}</p>
-        </div>
-
-        <!-- Phone -->
-        <div>
-          <label class="auth-label">Phone Number <span class="text-rose-600">*</span></label>
-          <input
-            v-model="form.phone"
-            type="tel"
-            placeholder="e.g. 9876543210"
-            class="auth-input"
-            :class="{ 'auth-input-invalid': fieldErrors.phone }"
-          />
-          <p v-if="fieldErrors.phone" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.phone }}</p>
-        </div>
-
-        <!-- Account Role -->
-        <div>
-          <label class="auth-label">I want to</label>
-          <select v-model="form.role" class="auth-input">
-            <option value="user">Hire Service Professionals</option>
-            <option value="worker">Offer Service & Register Trade</option>
-            <option value="both">Both (Hire & Offer Services)</option>
-          </select>
-        </div>
-
-        <!-- Password with Eye Toggle -->
-        <div>
-          <label class="auth-label">Password <span class="text-rose-600">*</span></label>
-          <div class="relative flex items-center">
-            <input
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="••••••••"
-              class="auth-input pr-11"
-              :class="{ 'auth-input-invalid': fieldErrors.password }"
-            />
-            <button
-              type="button"
-              @click="showPassword = !showPassword"
-              class="absolute right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-              :title="showPassword ? 'Hide password' : 'Show password'"
-            >
-              <svg v-if="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
-              </svg>
-              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-            </button>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">Must be at least 8 characters long with 1 letter, 1 number, and 1 special symbol (e.g. @$!%*#?&).</p>
-          <p v-if="fieldErrors.password" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.password }}</p>
-        </div>
-
-        <!-- Confirm Password with Eye Toggle -->
-        <div>
-          <label class="auth-label">Confirm Password <span class="text-rose-600">*</span></label>
-          <div class="relative flex items-center">
-            <input
-              v-model="form.password_confirmation"
-              :type="showConfirmPassword ? 'text' : 'password'"
-              placeholder="••••••••"
-              class="auth-input pr-11"
-              :class="{ 'auth-input-invalid': fieldErrors.password_confirmation }"
-            />
-            <button
-              type="button"
-              @click="showConfirmPassword = !showConfirmPassword"
-              class="absolute right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-              :title="showConfirmPassword ? 'Hide password' : 'Show password'"
-            >
-              <svg v-if="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
-              </svg>
-              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-            </button>
-          </div>
-          <p v-if="fieldErrors.password_confirmation" class="text-rose-600 text-xs font-semibold mt-1">{{ fieldErrors.password_confirmation }}</p>
-        </div>
-
-        <!-- General Error -->
-        <p v-if="generalError" class="text-rose-600 text-xs font-semibold p-3 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-200 dark:border-rose-800">{{ generalError }}</p>
-
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          :disabled="loading"
-          class="auth-btn-submit mt-2"
-          style="color: #ffffff !important;"
-        >
-          {{ loading ? 'Sending Verification Code...' : 'Send Verification Code' }}
-        </button>
-      </form>
-
-      <p class="text-center text-xs font-medium text-slate-600 dark:text-slate-400 mt-5">
-        Already have an account?
-        <NuxtLink to="/login" class="text-rose-600 font-extrabold hover:underline">Login</NuxtLink>
-      </p>
-    </div>
 
     <!-- STEP 2: Professional 6-Digit Mobile OTP Verification -->
     <div v-else-if="step === 2" class="auth-card-container">
@@ -225,6 +385,7 @@
     </div>
 
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -250,8 +411,11 @@ const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const loading = ref(false);
 const generalError = ref("");
+const termsAgreed = ref(false);
 const resendTimer = ref(60);
 let timerInterval: any = null;
+const showPasswordPopover = ref(false);
+const userDismissedPopover = ref(false);
 
 const fieldErrors = reactive<Record<string, string>>({
   name: "",
@@ -259,7 +423,79 @@ const fieldErrors = reactive<Record<string, string>>({
   phone: "",
   password: "",
   password_confirmation: "",
+  terms: "",
   otp: ""
+});
+
+const pwdChecks = computed(() => {
+  const p = form.password;
+  const nameLower = form.name.toLowerCase().trim();
+  const emailLower = form.email.toLowerCase().trim();
+  const pLower = p.toLowerCase();
+
+  return {
+    lowercase: /[a-z]/.test(p),
+    uppercase: /[A-Z]/.test(p),
+    number: /[0-9]/.test(p),
+    minLen: p.length >= 8,
+    special: /[^a-zA-Z0-9]/.test(p),
+    notMatchUser: p.length > 0 &&
+      (!nameLower || !pLower.includes(nameLower)) &&
+      (!emailLower || !pLower.includes(emailLower.split('@')[0]))
+  };
+});
+
+const allPwdChecksPass = computed(() => {
+  const c = pwdChecks.value;
+  return c.lowercase && c.uppercase && c.number && c.minLen && c.special && c.notMatchUser;
+});
+
+const isPopoverVisible = computed(() => {
+  if (userDismissedPopover.value) return false;
+  if (allPwdChecksPass.value) return false;
+  return showPasswordPopover.value || form.password.length > 0;
+});
+
+const dismissPopover = () => {
+  userDismissedPopover.value = true;
+};
+
+// Live inline error clearing on input change
+watch(() => form.name, (val) => {
+  if (val.trim() && fieldErrors.name) fieldErrors.name = "";
+});
+
+watch(() => form.email, (val) => {
+  if (val.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()) && fieldErrors.email) {
+    fieldErrors.email = "";
+  }
+});
+
+watch(() => form.phone, (val) => {
+  const clean = val.replace(/[^0-9]/g, "");
+  if (val.trim() && clean.length >= 10 && fieldErrors.phone) {
+    fieldErrors.phone = "";
+  }
+});
+
+watch(() => form.password, (val) => {
+  if (!val) {
+    userDismissedPopover.value = false;
+  }
+  if (fieldErrors.password) {
+    const err = validatePasswordStrength(form.password);
+    if (!err) fieldErrors.password = "";
+  }
+});
+
+watch(() => form.password_confirmation, (val) => {
+  if (val && val === form.password && fieldErrors.password_confirmation) {
+    fieldErrors.password_confirmation = "";
+  }
+});
+
+watch(termsAgreed, (val) => {
+  if (val && fieldErrors.terms) fieldErrors.terms = "";
 });
 
 onMounted(() => {
@@ -290,6 +526,7 @@ const clearErrors = () => {
   fieldErrors.phone = "";
   fieldErrors.password = "";
   fieldErrors.password_confirmation = "";
+  fieldErrors.terms = "";
   fieldErrors.otp = "";
   generalError.value = "";
 };
@@ -338,6 +575,11 @@ const handleSendOtp = async () => {
 
   if (form.password !== form.password_confirmation) {
     fieldErrors.password_confirmation = "Passwords do not match.";
+    hasError = true;
+  }
+
+  if (!termsAgreed.value) {
+    fieldErrors.terms = "You must agree to the terms of service and privacy policy.";
     hasError = true;
   }
 
@@ -446,20 +688,72 @@ const handleVerifyOtp = async () => {
 </script>
 
 <style scoped>
-.auth-page-wrap { max-width: 28rem; margin: 0 auto; padding: 4rem 1rem; }
+.auth-page-outer {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 10%, rgba(245, 243, 255, 1) 0%, rgba(248, 250, 252, 1) 80%);
+}
+:global(html.dark) .auth-page-outer {
+  background: radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.12) 0%, rgba(15, 23, 42, 1) 80%);
+}
+
+/* Subtle background geometric dot-grid texture */
+.bg-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.2) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+:global(html.dark) .bg-grid-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  opacity: 0.4;
+}
+
+/* Soft ambient background glow effects */
+.bg-ambient {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none;
+}
+.bg-ambient-top {
+  top: -15%;
+  right: 15%;
+  width: 32rem;
+  height: 32rem;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.35) 0%, rgba(139, 92, 246, 0.05) 70%);
+}
+.bg-ambient-bottom {
+  bottom: -15%;
+  left: 10%;
+  width: 36rem;
+  height: 36rem;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.25) 0%, rgba(225, 29, 72, 0.05) 70%);
+}
+:global(html.dark) .bg-ambient { opacity: 0.5; }
+
+.auth-page-wrap { width: 100%; max-width: 44rem; margin: 0 auto; padding: 3rem 1rem; }
 
 .auth-card-container {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 1.5rem;
-  padding: 2.25rem 2rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.12);
   transition: all 0.2s ease-in-out;
 }
 :global(html.dark) .auth-card-container {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.92);
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: none;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4);
 }
 
 .auth-icon-badge {
@@ -478,21 +772,23 @@ const handleVerifyOtp = async () => {
   border-color: rgba(178, 5, 55, 0.3);
 }
 
-.auth-header { text-align: center; margin-bottom: 1.75rem; }
-.auth-title { font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 800; color: #0f172a; margin-bottom: 0.375rem; }
+.auth-header { text-align: center; margin-bottom: 2rem; }
+.auth-title { font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: #0f172a; margin-bottom: 0.375rem; letter-spacing: -0.02em; }
 :global(html.dark) .auth-title { color: #f8fafc; }
 .auth-sub { font-size: 0.875rem; font-weight: 500; color: #64748b; margin: 0; line-height: 1.4; }
 :global(html.dark) .auth-sub { color: #94a3b8; }
 
-.auth-label { display: block; font-size: 0.8125rem; font-weight: 700; color: #334155; margin-bottom: 0.375rem; }
+.auth-label { display: block; font-size: 0.8125rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem; }
 :global(html.dark) .auth-label { color: #cbd5e1; }
+.auth-label-group { display: block; font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.125rem; }
+:global(html.dark) .auth-label-group { color: #f8fafc; }
 
 .auth-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: #f8fafc;
-  border: 1.5px solid #cbd5e1;
+  border-radius: 0.625rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   color: #0f172a;
   font-size: 0.875rem;
   font-weight: 500;
@@ -500,12 +796,12 @@ const handleVerifyOtp = async () => {
   transition: all 0.15s ease;
 }
 :global(html.dark) .auth-input {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.6);
   border-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 .auth-input::placeholder { color: #94a3b8; }
-.auth-input:focus { border-color: #b20537; box-shadow: 0 0 0 3px rgba(178, 5, 55, 0.12); }
+.auth-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
 
 .auth-input-invalid {
   border-color: #f43f5e !important;
@@ -516,6 +812,110 @@ const handleVerifyOtp = async () => {
   background-color: rgba(244, 63, 94, 0.15) !important;
   color: #fda4af !important;
 }
+
+/* Password Requirement Floating Tooltip Popover */
+.password-req-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-width: 19.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  color: #0f172a;
+}
+:global(html.dark) .password-req-popover {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+  color: #f8fafc;
+}
+.password-req-popover h5 {
+  color: #0f172a !important;
+}
+:global(html.dark) .password-req-popover h5 {
+  color: #f8fafc !important;
+}
+
+.popover-arrow {
+  position: absolute;
+  top: -6px;
+  left: 1.5rem;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+  transform: rotate(45deg);
+}
+:global(html.dark) .popover-arrow {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.popover-fade-enter-active,
+.popover-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.popover-fade-enter-from,
+.popover-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+}
+
+/* Role Selector Cards */
+.role-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+:global(html.dark) .role-card {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.role-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.role-card-active {
+  background: #f5f3ff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.12);
+}
+:global(html.dark) .role-card-active {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: #a78bfa !important;
+}
+
+.role-icon-box {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+:global(html.dark) .role-icon-box {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.role-title { font-size: 0.8125rem; font-weight: 700; color: #0f172a; margin: 0 0 0.125rem 0; }
+:global(html.dark) .role-title { color: #f8fafc; }
+.role-desc { font-size: 0.6875rem; color: #64748b; margin: 0; line-height: 1.3; }
+:global(html.dark) .role-desc { color: #94a3b8; }
 
 /* 6-Digit OTP Box Styling */
 .otp-pin-box {
@@ -538,21 +938,21 @@ const handleVerifyOtp = async () => {
   color: #ffffff;
 }
 .otp-pin-box:focus {
-  border-color: #b20537;
-  box-shadow: 0 0 0 3px rgba(178, 5, 55, 0.18);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
   background: #ffffff;
 }
 :global(html.dark) .otp-pin-box:focus {
   background: rgba(255, 255, 255, 0.1);
 }
 .otp-pin-filled {
-  border-color: #b20537;
-  background: #fef2f5;
-  color: #b20537;
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+  color: #7c3aed;
 }
 :global(html.dark) .otp-pin-filled {
-  background: rgba(178, 5, 55, 0.2);
-  color: #f43f5e;
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
 }
 .otp-pin-invalid {
   border-color: #f43f5e !important;
@@ -578,21 +978,39 @@ const handleVerifyOtp = async () => {
   color: #fcd34d;
 }
 
+.auth-btn-purple {
+  width: 100%;
+  padding: 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed, #6d28d9);
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+}
+.auth-btn-purple:hover:not(:disabled) {
+  box-shadow: 0 6px 22px rgba(124, 58, 237, 0.5);
+  transform: translateY(-1.5px);
+}
+
 .auth-btn-submit {
   width: 100%;
   padding: 0.875rem;
   border-radius: 0.75rem;
   border: none;
-  background: linear-gradient(135deg, #b20537, #d4064a, #f43f5e);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed, #6d28d9);
   color: #ffffff !important;
   font-weight: 800;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(178, 5, 55, 0.3);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
 }
 .auth-btn-submit:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(178, 5, 55, 0.45);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
   transform: translateY(-1px);
 }
 

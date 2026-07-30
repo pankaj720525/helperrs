@@ -1,5 +1,5 @@
 <template>
-  <div class="sp-wrap">
+  <div class="w-[90%] max-w-[90%] mx-auto px-2 sm:px-4 py-8 space-y-8">
 
     <!-- ── Header & Location Bar ────────────────────────── -->
     <div class="sp-header">
@@ -21,12 +21,10 @@
       <p class="sp-sub">{{ t('searchSub') }}</p>
     </div>
 
-    <!-- ── Search & Advanced Filters Panel ──────────────── -->
-    <div class="sp-card">
-
-      <!-- Main Search Row -->
-      <div class="sp-main-search-row">
-        <div class="sp-search-input-wrap">
+    <!-- ── Search Input Banner ──────────────────────────── -->
+    <div class="sp-search-card bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative flex items-center">
           <svg class="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
@@ -34,11 +32,11 @@
             v-model="keyword"
             type="text"
             :placeholder="t('searchPlaceholderInput')"
-            class="sp-main-input pl-11 pr-10"
+            class="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-900 outline-none focus:border-rose-600 transition-colors"
             @keydown.enter="handleSearch"
           />
-          <button v-if="keyword" type="button" @click="keyword = ''" class="sp-clear-btn absolute right-3">
-            <svg class="w-4 h-4 text-slate-400 hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button v-if="keyword" type="button" @click="keyword = ''" class="absolute right-3 text-slate-400 hover:text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -48,90 +46,134 @@
           type="button"
           @click="handleSearch"
           :disabled="searching"
-          class="sp-search-btn flex items-center justify-center gap-2"
+          class="px-7 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold text-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+          style="color: #ffffff !important;"
         >
           <span v-if="searching" class="sp-spinner" />
           <template v-else>
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <span>{{ t('searchBtnLabel') }}</span>
+            <span class="text-white font-bold">{{ t('searchBtnLabel') }}</span>
           </template>
         </button>
       </div>
 
-      <!-- Quick Trending Query Chips -->
-      <div class="sp-chips-bar">
-        <span class="sp-chips-label">{{ t('popularSearches') }}</span>
+      <!-- Quick Chips Bar -->
+      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs">
+        <span class="font-bold text-slate-400 uppercase tracking-wider">{{ t('popularSearches') }}</span>
         <button
           v-for="chip in trendingChips"
           :key="chip"
           type="button"
           @click="selectChip(chip)"
-          class="sp-chip"
-          :class="{ active: keyword.toLowerCase() === chip.toLowerCase() }"
+          class="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-semibold transition-all hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 cursor-pointer"
+          :class="{ 'bg-rose-600 text-white border-rose-600': keyword.toLowerCase() === chip.toLowerCase() }"
         >
           {{ chip }}
         </button>
       </div>
+    </div>
 
-      <div class="sp-divider" />
+    <!-- ── 2-COLUMN MAIN LAYOUT (Left Sidebar Filter + Right Results) ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
-      <!-- Advanced Filter Controls Grid -->
-      <div class="sp-filters-grid">
+      <!-- ── LEFT SIDEBAR: Sticky Filter Panel ── -->
+      <aside class="lg:col-span-1 left-filter-sidebar bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-6">
 
-        <!-- Category Dropdown -->
-        <div class="sp-filter-group">
-          <label class="sp-label flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
             </svg>
-            <span>{{ t('categoryFilter') }}</span>
-          </label>
-          <select v-model="category" class="sp-select">
-            <option value="">{{ t('allCategoriesOpt') }}</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
-          </select>
-        </div>
-
-        <!-- Price Range Slider -->
-        <div class="sp-filter-group">
-          <div class="sp-label-row">
-            <label class="sp-label flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3h12M6 8h12M6 3v10a4 4 0 004 4h2l5 5M6 13h9"/>
-              </svg>
-              <span>{{ t('priceFilter') }}</span>
-            </label>
-            <span class="sp-val-highlight">₹{{ maxPrice }}</span>
+            <h3 class="font-heading font-extrabold text-slate-900 text-base">Filters</h3>
           </div>
-          <input v-model.number="maxPrice" type="range" min="100" max="10000" step="100" class="sp-slider" />
+          <button v-if="hasActiveFilters" type="button" @click="resetFilters" class="text-xs font-bold text-rose-600 hover:underline">
+            Reset All
+          </button>
         </div>
 
-        <!-- Radius Range Slider -->
-        <div class="sp-filter-group">
-          <div class="sp-label-row">
-            <label class="sp-label flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-              <span>{{ t('radiusFilter') }}</span>
+        <!-- Quick Filters / Requirement Badges Section -->
+        <div class="space-y-2.5">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Quick Filters</h4>
+          <div class="space-y-2">
+            <label
+              v-for="feature in [
+                { id: 'express', label: 'Express 2-Hour Delivery', icon: '⚡' },
+                { id: 'verified', label: 'Verified Professionals', icon: '🛡️' },
+                { id: 'trending', label: 'Trending & Hot Deals', icon: '🔥' },
+                { id: 'warranty', label: '30-Day Warranty', icon: '✨' }
+              ]"
+              :key="feature.id"
+              class="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-700 hover:text-rose-600 transition-colors"
+            >
+              <input
+                type="checkbox"
+                :checked="selectedFeatures.includes(feature.id)"
+                @change="toggleFeature(feature.id)"
+                class="w-4 h-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
+              />
+              <span class="flex items-center gap-1.5">
+                <span>{{ feature.icon }}</span>
+                <span>{{ feature.label }}</span>
+              </span>
             </label>
-            <span class="sp-val-highlight">{{ radius }} km</span>
           </div>
-          <input v-model.number="radius" type="range" min="1" max="100" class="sp-slider" />
         </div>
 
-        <!-- Minimum Rating Filter -->
-        <div class="sp-filter-group">
-          <label class="sp-label flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-            <span>{{ t('ratingFilter') }}</span>
-          </label>
-          <select v-model="minRating" class="sp-select">
+        <!-- Categories Vertical List Section -->
+        <div class="space-y-2.5 pt-4 border-t border-slate-100">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Categories</h4>
+          <div class="space-y-1">
+            <button
+              type="button"
+              @click="category = ''"
+              class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer"
+              :class="!category ? 'bg-rose-50 text-rose-600 font-extrabold' : 'text-slate-600 hover:bg-slate-50'"
+            >
+              <span>{{ t('allCategoriesOpt') }}</span>
+            </button>
+
+            <button
+              v-for="cat in categories"
+              :key="cat.id"
+              type="button"
+              @click="category = cat.slug"
+              class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer"
+              :class="category === cat.slug ? 'bg-rose-50 text-rose-600 font-extrabold' : 'text-slate-600 hover:bg-slate-50'"
+            >
+              <span>{{ cat.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Range Filter Section -->
+        <div class="space-y-2.5 pt-4 border-t border-slate-100">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ t('priceFilter') }}</h4>
+            <span class="text-xs font-extrabold text-rose-600">₹{{ maxPrice }}</span>
+          </div>
+          <input v-model.number="maxPrice" type="range" min="100" max="10000" step="100" class="w-full accent-rose-600 cursor-pointer" />
+          <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+            <span>₹100</span>
+            <span>₹10,000+</span>
+          </div>
+        </div>
+
+        <!-- Distance Radius Filter Section -->
+        <div class="space-y-2.5 pt-4 border-t border-slate-100">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ t('radiusFilter') }}</h4>
+            <span class="text-xs font-extrabold text-rose-600">{{ radius }} km</span>
+          </div>
+          <input v-model.number="radius" type="range" min="1" max="100" class="w-full accent-rose-600 cursor-pointer" />
+        </div>
+
+        <!-- Minimum Rating Filter Section -->
+        <div class="space-y-2.5 pt-4 border-t border-slate-100">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ t('ratingFilter') }}</h4>
+          <select v-model="minRating" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 outline-none cursor-pointer">
             <option value="0">{{ t('anyRating') }}</option>
             <option value="4.5">{{ t('topRated') }}</option>
             <option value="4.0">{{ t('aboveFour') }}</option>
@@ -139,102 +181,29 @@
           </select>
         </div>
 
-        <!-- Sort By -->
-        <div class="sp-filter-group">
-          <label class="sp-label flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-            </svg>
-            <span>{{ t('sortBy') }}</span>
-          </label>
-          <select v-model="sortBy" class="sp-select">
-            <option value="relevance">{{ t('relevance') }}</option>
-            <option value="rating">Highest Rated</option>
-            <option value="price_asc">{{ t('priceLowHigh') }}</option>
-            <option value="price_desc">{{ t('priceHighLow') }}</option>
-            <option value="distance">{{ t('distanceNearFar') }}</option>
-          </select>
+      </aside>
+
+      <!-- ── RIGHT CONTENT AREA: Results Count, Sort & Grid ── -->
+      <main class="lg:col-span-3 space-y-6">
+
+        <!-- Top Header Bar for Results & Sorting -->
+        <div class="sp-sort-bar bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs font-semibold text-slate-600">
+            Available Services in <strong class="text-slate-900 font-extrabold">{{ currentLocation.city }}</strong>
+            <span class="text-rose-600 font-bold ml-1">({{ filteredResults.length }} results within {{ radius }} km)</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500">{{ t('sortBy') }}:</span>
+            <select v-model="sortBy" class="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 outline-none cursor-pointer">
+              <option value="relevance">{{ t('relevance') }}</option>
+              <option value="rating">Highest Rated</option>
+              <option value="price_asc">{{ t('priceLowHigh') }}</option>
+              <option value="price_desc">{{ t('priceHighLow') }}</option>
+              <option value="distance">{{ t('distanceNearFar') }}</option>
+            </select>
+          </div>
         </div>
-
-      </div>
-
-      <!-- Labels & Feature Toggles -->
-      <div class="sp-labels-section">
-        <label class="sp-label mb-2 flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-          </svg>
-          <span>Filter by Requirement & Badges</span>
-        </label>
-        <div class="sp-toggles-row">
-          <button
-            type="button"
-            @click="toggleFeature('express')"
-            class="sp-toggle-pill flex items-center gap-1.5"
-            :class="{ active: selectedFeatures.includes('express') }"
-          >
-            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            <span>Express 2-Hour Delivery</span>
-          </button>
-          <button
-            type="button"
-            @click="toggleFeature('verified')"
-            class="sp-toggle-pill flex items-center gap-1.5"
-            :class="{ active: selectedFeatures.includes('verified') }"
-          >
-            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-            </svg>
-            <span>Verified Professionals</span>
-          </button>
-          <button
-            type="button"
-            @click="toggleFeature('trending')"
-            class="sp-toggle-pill flex items-center gap-1.5"
-            :class="{ active: selectedFeatures.includes('trending') }"
-          >
-            <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
-            </svg>
-            <span>Trending & Hot Deals</span>
-          </button>
-          <button
-            type="button"
-            @click="toggleFeature('warranty')"
-            class="sp-toggle-pill flex items-center gap-1.5"
-            :class="{ active: selectedFeatures.includes('warranty') }"
-          >
-            <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span>30-Day Warranty</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Reset & Active Filters Row -->
-      <div class="sp-active-bar" v-if="hasActiveFilters">
-        <span class="sp-af-text font-bold text-rose-600">Filters Active</span>
-        <button type="button" @click="resetFilters" class="sp-reset-btn flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          <span>Reset All Filters</span>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- ── Results Section ──────────────────────────────── -->
-    <div class="sp-results-header">
-      <h2 class="sp-rh-title">
-        Available Services in {{ currentLocation.city }}
-        <span class="sp-rh-count">({{ filteredResults.length }} results)</span>
-      </h2>
-      <div class="sp-rh-tag">within {{ radius }} km radius</div>
-    </div>
 
     <!-- Shimmer Skeleton Loading State -->
     <div v-if="searching" class="sp-grid">
@@ -303,10 +272,12 @@
 
           <!-- Rating & Price Row -->
           <div class="sp-meta-row">
-            <div class="sp-rating">
-              <span class="sp-star">★</span>
-              <span class="sp-rating-num">{{ r.reviews_avg || r.rating || '4.8' }}</span>
-              <span class="sp-rating-cnt">({{ r.reviews_count || r.reviews || 18 }})</span>
+            <div class="sp-rating flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80">
+              <svg class="w-3.5 h-3.5 fill-[#f59e0b] text-[#f59e0b]" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+              <span class="sp-rating-num font-extrabold text-amber-800">{{ r.reviews_avg || r.rating || '4.8' }}</span>
+              <span class="sp-rating-cnt font-medium text-slate-500">({{ r.reviews_count || r.reviews || 18 }})</span>
             </div>
 
             <div class="sp-price-box">
@@ -381,6 +352,8 @@
         </div>
       </div>
     </div>
+    </main>
+  </div>
 
     <!-- Quick View Modal -->
     <QuickViewModal
@@ -515,7 +488,36 @@ watch(() => currentLocation.value.city, () => {
 </script>
 
 <style scoped>
-.sp-wrap { max-width: 80rem; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+.left-filter-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+:global(html.dark) .sp-search-card,
+:global(html.dark) .left-filter-sidebar,
+:global(html.dark) .sp-sort-bar,
+:global(html.dark) .sp-empty-animated {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+.sp-empty-animated {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.sp-wrap { width: 90% !important; max-width: 90% !important; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
 
 .sp-header { margin-bottom: 1.5rem; }
 .sp-header-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem; }
@@ -691,26 +693,6 @@ watch(() => currentLocation.value.city, () => {
   transition: opacity 0.15s;
 }
 .sp-book-btn:hover { opacity: 0.9; }
-
-.sp-empty-animated {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 2rem;
-  padding: 3.5rem 2rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
-  position: relative;
-  overflow: hidden;
-}
-:global(html.dark) .sp-empty-animated {
-  background: rgba(30, 41, 59, 0.65);
-  border-color: rgba(255, 255, 255, 0.12);
-}
 
 .sp-radar-wrap {
   position: relative;

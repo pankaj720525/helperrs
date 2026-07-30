@@ -17,15 +17,14 @@ class ReviewController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'service_id' => ['required', 'exists:services,id'],
-            'per_page'   => ['nullable', 'integer', 'min:1', 'max:50'],
-        ]);
+        $serviceId = $request->service_id;
+        $service = $serviceId ? Service::find($serviceId) : null;
+        $realId = $service ? $service->id : $serviceId;
 
-        $reviews = Review::where('service_id', $validated['service_id'])
+        $reviews = Review::when($realId, fn($q) => $q->where('service_id', $realId))
             ->with('user')
             ->latest()
-            ->paginate($validated['per_page'] ?? 10);
+            ->paginate($request->per_page ?? 10);
 
         return response()->json([
             'reviews' => ReviewResource::collection($reviews),

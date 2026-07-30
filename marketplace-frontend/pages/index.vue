@@ -10,7 +10,7 @@
         <div class="absolute bottom-10 right-10 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl animate-float" style="animation-delay: -3s" />
       </div>
 
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="relative w-[90%] max-w-[90%] mx-auto px-4 sm:px-6">
 
         <!-- Active Location Announcement Pill -->
         <div class="flex justify-center mb-6 animate-fade-down">
@@ -144,7 +144,7 @@
     </section>
 
     <!-- ── Categories Grid Section ─────────────────────── -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <section class="w-[90%] max-w-[90%] mx-auto px-4 sm:px-6 py-12">
       <div class="flex items-center justify-between mb-8">
         <div>
           <h2 class="text-3xl font-heading font-bold text-slate-900 mb-2">{{ t('browseCategory') }}</h2>
@@ -178,7 +178,7 @@
 
     <!-- ── Platform Metrics Bar ────────────────────────── -->
     <section class="border-y border-slate-200 py-14 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="w-[90%] max-w-[90%] mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
 
           <div>

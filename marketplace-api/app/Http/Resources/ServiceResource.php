@@ -27,6 +27,7 @@ class ServiceResource extends JsonResource
             'parent'          => new ServiceResource($this->whenLoaded('parent')),
             'pending_update'  => new ServiceResource($this->whenLoaded('pendingUpdate')),
             'draft_update'    => new ServiceResource($this->whenLoaded('draftUpdate')),
+            'reviews'         => ReviewResource::collection($this->whenLoaded('reviews')),
             'city'            => $this->user?->workerProfile?->city ?? ($this->user?->workerProfile?->address ? (trim(explode(',', $this->user->workerProfile->address)[0])) : 'Mumbai'),
             'reviews_avg'     => round($this->reviews_avg_rating ?? 0, 1),
             'reviews_count'   => $this->reviews_count ?? 0,

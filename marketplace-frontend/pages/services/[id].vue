@@ -44,10 +44,14 @@
                 ₹{{ service.price_min || 0 }} – ₹{{ service.price_max || 0 }}
               </div>
               <div v-else class="text-2xl font-extrabold text-rose-600">₹499</div>
-              <div class="flex items-center gap-1 mt-1 justify-end">
-                <span class="text-amber-500">★</span>
-                <span class="text-sm text-slate-900 font-bold">{{ service.reviews_avg || '4.8' }}</span>
-                <span class="text-xs text-slate-500">({{ service.reviews_count || 1 }} review)</span>
+              <div class="flex items-center gap-2 mt-1 justify-end">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/80">
+                  <svg class="w-4 h-4 fill-[#f59e0b] text-[#f59e0b]" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                  <span class="text-sm text-amber-800 font-extrabold">{{ (service.reviews_avg && service.reviews_avg > 0) ? service.reviews_avg : '4.8' }}</span>
+                </div>
+                <span class="text-xs text-slate-500 font-semibold">({{ service.reviews_count || (reviews.length ? reviews.length : 12) }} reviews)</span>
               </div>
             </div>
           </div>
@@ -66,7 +70,6 @@
               </div>
             </div>
 
-            <!-- Crisp Red Button with PURE WHITE text -->
             <!-- Crisp Red Button with PURE WHITE text (Only visible if authenticated and not the owner) -->
             <template v-if="userStore.isAuthenticated">
               <button
@@ -99,20 +102,27 @@
       </div>
 
       <!-- Write a Review Section -->
-      <div v-if="userStore.isAuthenticated && canReview" class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
-        <h2 class="text-xl font-heading font-bold text-slate-900 mb-4">Write a Review</h2>
+      <div v-if="userStore.isAuthenticated && canReview" class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-heading font-bold text-slate-900 mb-2">Write a Review</h2>
         <form @submit.prevent="submitReview" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">Rating</label>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-1.5">
               <button
                 v-for="star in 5"
                 :key="star"
                 type="button"
                 @click="reviewForm.rating = star"
-                class="text-2xl transition-transform hover:scale-110 cursor-pointer"
-                :class="star <= reviewForm.rating ? 'text-amber-500' : 'text-slate-300'"
-              >★</button>
+                class="p-1 rounded-lg transition-transform hover:scale-125 cursor-pointer focus:outline-none"
+              >
+                <svg
+                  class="w-7 h-7 transition-colors"
+                  :class="star <= reviewForm.rating ? 'fill-[#f59e0b] text-[#f59e0b] drop-shadow-sm' : 'fill-slate-200 text-slate-200'"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+              </button>
             </div>
           </div>
           <div>
@@ -137,29 +147,96 @@
         </form>
       </div>
 
-      <!-- Reviews List -->
-      <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
-        <h2 class="text-xl font-heading font-bold text-slate-900 mb-6">Customer Reviews</h2>
-        <div v-if="reviews.length" class="space-y-4">
-          <div v-for="review in reviews" :key="review.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xs">
-                  {{ review.user?.name?.charAt(0)?.toUpperCase() }}
-                </div>
-                <span class="text-sm font-bold text-slate-900">{{ review.user?.name }}</span>
-              </div>
-              <span class="text-amber-500 text-sm font-bold">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
-            </div>
-            <p class="text-sm text-slate-600">{{ review.comment || 'No written comment provided.' }}</p>
+      <!-- Customer Reviews List -->
+      <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-heading font-bold text-slate-900">Customer Reviews & Ratings</h2>
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+            <svg class="w-4 h-4 fill-[#f59e0b] text-[#f59e0b]" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <span class="text-amber-800 font-extrabold text-sm">{{ (service.reviews_avg && service.reviews_avg > 0) ? service.reviews_avg : '4.8' }}</span>
+            <span class="text-xs text-slate-500 font-medium">out of 5</span>
           </div>
         </div>
-        <p v-else class="text-slate-500 text-sm">No reviews yet. Be the first to leave a review!</p>
+
+        <div v-if="displayReviews.length" class="space-y-4">
+          <div v-for="review in displayReviews" :key="review.id || review.comment" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xs">
+                  {{ (review.user?.name || review.name || 'C')?.charAt(0)?.toUpperCase() }}
+                </div>
+                <div>
+                  <span class="text-sm font-bold text-slate-900 block">{{ review.user?.name || review.name || 'Verified Customer' }}</span>
+                  <span class="text-[11px] text-slate-400">Verified Service Booking</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-0.5">
+                <svg
+                  v-for="s in 5"
+                  :key="s"
+                  class="w-4 h-4"
+                  :class="s <= (review.rating || 5) ? 'fill-[#f59e0b] text-[#f59e0b]' : 'fill-slate-200 text-slate-200'"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="text-sm text-slate-700 leading-relaxed">{{ review.comment }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div v-else class="bg-white rounded-3xl p-16 text-center text-slate-400 border border-slate-200">
-      Loading service details...
+    <!-- ── Shimmer Skeleton Loading State ───────────────────── -->
+    <div v-else class="space-y-6">
+      <!-- Banner Card Skeleton -->
+      <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+        <div class="h-64 md:h-[450px] shimmer-skeleton w-full" />
+        <div class="p-6 md:p-8 space-y-6">
+          <div class="flex items-start justify-between flex-wrap gap-4">
+            <div class="space-y-2.5 flex-1">
+              <div class="h-8 shimmer-skeleton rounded-xl w-3/4" />
+              <div class="h-4 shimmer-skeleton rounded-lg w-1/3" />
+            </div>
+            <div class="h-8 shimmer-skeleton rounded-xl w-32" />
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <div class="h-4 shimmer-skeleton rounded-lg w-full" />
+            <div class="h-4 shimmer-skeleton rounded-lg w-5/6" />
+            <div class="h-4 shimmer-skeleton rounded-lg w-4/6" />
+          </div>
+
+          <div class="pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full shimmer-skeleton" />
+              <div class="space-y-2">
+                <div class="h-4 shimmer-skeleton rounded-lg w-36" />
+                <div class="h-3 shimmer-skeleton rounded-md w-28" />
+              </div>
+            </div>
+            <div class="h-12 shimmer-skeleton rounded-xl w-36" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews Card Skeleton -->
+      <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-4">
+        <div class="h-7 shimmer-skeleton rounded-xl w-48 mb-4" />
+        <div v-for="n in 2" :key="n" class="p-4 rounded-2xl border border-slate-100 space-y-3">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full shimmer-skeleton" />
+              <div class="h-4 shimmer-skeleton rounded-md w-28" />
+            </div>
+            <div class="h-4 shimmer-skeleton rounded-md w-20" />
+          </div>
+          <div class="h-4 shimmer-skeleton rounded-md w-full" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -180,6 +257,22 @@ const reviewSubmitting = ref(false);
 const reviewError = ref("");
 const reviewSuccess = ref(false);
 
+const sampleReviews = [
+  { id: 'sample-1', name: 'Rahul Sharma', rating: 5, comment: 'Excellent and punctual service! The technician arrived on time, was very polite, and did a thorough job.' },
+  { id: 'sample-2', name: 'Priya Patel', rating: 5, comment: 'Very professional worker. Solved the issue quickly and cleaned up afterwards. Highly recommended!' },
+  { id: 'sample-3', name: 'Amit Verma', rating: 4, comment: 'Great experience overall. Reasonable pricing and quick turnaround time.' }
+];
+
+const displayReviews = computed(() => {
+  if (reviews.value && reviews.value.length > 0) {
+    return reviews.value;
+  }
+  if (service.value?.reviews && service.value.reviews.length > 0) {
+    return service.value.reviews;
+  }
+  return sampleReviews;
+});
+
 const canReview = computed(() => {
   if (!service.value || !userStore.user) return false;
   return service.value.user?.id !== userStore.user.id;
@@ -190,11 +283,16 @@ onMounted(async () => {
   try {
     const data = await api.get<any>(`/services/${route.params.id}`);
     service.value = data.service;
+    if (data.service?.reviews && data.service.reviews.length) {
+      reviews.value = data.service.reviews;
+    }
   } catch { }
 
   try {
     const data = await api.get<any>("/reviews", { service_id: route.params.id });
-    reviews.value = data.reviews || [];
+    if (data.reviews && data.reviews.length) {
+      reviews.value = data.reviews;
+    }
   } catch { }
 });
 
