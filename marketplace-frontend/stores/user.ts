@@ -9,6 +9,7 @@ interface UserData {
   role: string;
   is_active: boolean;
   worker_profile?: any;
+  subscription?: any;
 }
 
 export const useUserStore = defineStore("user", {
